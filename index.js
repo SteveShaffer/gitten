@@ -4,10 +4,8 @@ const Git = require('simple-git'); // TODO: Switch to promises
 const request = require('request-promise');
 const yargs = require('yargs');
 
-// TODO: Make these configurable from a config file
-const REPO_OWNER = 'steveshaffer';
-const REPO_NAME = 'gish';
-const GITHUB_USERNAME = REPO_OWNER;
+// TODO: Make these configurable from a config file (or actually I think you can figure it out from the credentials)
+const GITHUB_USERNAME = 'steveshaffer';
 
 // noinspection BadExpressionStatementJS
 yargs
@@ -85,30 +83,33 @@ yargs
       const currentBranch = status.current; // TODO: Validate this is a branch and not detached HEAD and stuff
       // TODO: commit & push if necessary
       // TODO: Use variables
-      // TODO: Pull repo owner and name from config
-      const query = `query {
-        repository(owner: "${REPO_OWNER}", name: "${REPO_NAME}") {
-          id
-        }
-      }`;
-      callGithubGraphql({query}).then(resp => {
-        // TODO: Use variables
-        const query = `mutation {
-          createPullRequest(input: {
-            repositoryId: "${resp.repository.id}="
-            baseRefName: "master"
-            headRefName: "${currentBranch}"
-            title: "${title}"
-          }) {
-            pullRequest {
-              id
-            }
+      getCurrentRepoGithubInfo((err, repoInfo) => {
+        // TODO: Handle errors
+        const query = `query {
+          repository(owner: "${repoInfo.owner}", name: "${repoInfo.name}") {
+            id
           }
         }`;
-        callGithubGraphql({query});
-        // TODO: Log the PR number, ideally with a link to view it
-      })
-      ;
+        callGithubGraphql({query})
+          .then(resp => {
+            // TODO: Use variables
+            const query = `mutation {
+              createPullRequest(input: {
+                repositoryId: "${resp.repository.id}"
+                baseRefName: "master"
+                headRefName: "${currentBranch}"
+                title: "${title}"
+              }) {
+                pullRequest {
+                  id
+                }
+              }
+            }`;
+            callGithubGraphql({query});
+            // TODO: Log the PR number, ideally with a link to view it
+          })
+          .catch(err => console.error(err));
+      });
     });
   })
   .command('merge [number]', 'squash and merge a GitHub pull request', yargs => {
@@ -119,15 +120,17 @@ yargs
   }, argv => {
     const pullRequestNumber = argv.number;
     console.log('merging the PR');
-    callGithubRest({ // Have to use GitHub REST API for now because GraphQL doesn't support squash-and-merge
-      method: 'put',
-      uri: `repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pullRequestNumber}/merge`,
-      data: {
-        merge_method: 'squash'
-      }
-    }).then(() => {
-      console.log('merged');
-      // TODO: Delete the branch after merge (and maybe delete local branch too, and maybe switch to or detached head on master?)
+    getCurrentRepoGithubInfo((err, repoInfo) => {
+      callGithubRest({ // Have to use GitHub REST API for now because GraphQL doesn't support squash-and-merge
+        method: 'put',
+        uri: `repos/${repoInfo.owner}/${repoInfo.name}/pulls/${pullRequestNumber}/merge`,
+        data: {
+          merge_method: 'squash'
+        }
+      }).then(() => {
+        console.log('merged');
+        // TODO: Delete the branch after merge (and maybe delete local branch too, and maybe switch to or detached head on master?)
+      });
     });
   })
   .help()
@@ -174,6 +177,28 @@ function callGithubBase({method, uri, data, bearerAuth = false}) {
       return Promise.reject('Error parsing API JSON response');
     }
     return parsedRes;
+  });
+}
+
+function getCurrentRepoGithubInfo(callback) {
+  const git = Git(); // TODO: Is this ok for other directories and stuff?
+  git.getRemotes(true, (err, remotes) => {
+    const url = remotes.find(remote => remote.name === 'origin').refs.fetch; // NOTE: Doesn't support differentiating fetch vs. push URLs
+    const matches = url.match(/^https:\/\/github\.com\/(.*)\/(.*)$/); // NOTE: Assumes https
+    if (matches.length !== 3) {
+      throw new Error('Invalid GitHub URL found for remote origin');
+    }
+    const owner = matches[1];
+    let name = matches[2];
+    const GIT_SUFFIX = '.git';
+    if (name.endsWith(GIT_SUFFIX)) {
+      name = name.slice(0, name.length - GIT_SUFFIX.length);
+    }
+    callback(null, {
+      owner,
+      name,
+      url
+    });
   });
 }
 
