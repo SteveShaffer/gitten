@@ -152,7 +152,7 @@ function callGithubRest({method, uri, data}) {
   });
 }
 
-function callGithubBase({method, uri, data, bearerAuth = true}) {
+function callGithubBase({method, uri, data, bearerAuth = false}) {
   const githubAccessToken = getGitHubAccessToken();
   return request({
     uri,
