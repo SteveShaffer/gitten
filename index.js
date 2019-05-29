@@ -7,6 +7,7 @@ const yargs = require('yargs');
 // TODO: Make these configurable from a config file
 const REPO_OWNER = 'steveshaffer';
 const REPO_NAME = 'gish';
+const GITHUB_USERNAME = REPO_OWNER;
 
 // noinspection BadExpressionStatementJS
 yargs
@@ -90,7 +91,7 @@ yargs
           id
         }
       }`;
-      callGitHubGraphql({query}).then(resp => {
+      callGithubGraphql({query}).then(resp => {
         // TODO: Use variables
         const query = `mutation {
           createPullRequest(input: {
@@ -104,7 +105,7 @@ yargs
             }
           }
         }`;
-        callGitHubGraphql({query})
+        callGithubGraphql({query})
       })
       ;
     });
@@ -117,7 +118,7 @@ yargs
   }, argv => {
     const pullRequestNumber = argv.number;
     console.log('merging the PR');
-    callGitHubRest({ // Have to use GitHub REST API for now because GraphQL doesn't support squash-and-merge
+    callGithubBase({ // Have to use GitHub REST API for now because GraphQL doesn't support squash-and-merge
       method: 'put',
       uri: `https://api.github.com/v3/repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pullRequestNumber}/merge`,
       data: {
@@ -130,12 +131,12 @@ yargs
   .help()
   .argv;
 
-function callGitHubGraphql({query, variables}) {
-  return callGitHubRest({
+function callGithubGraphql({query, variables}) {
+  return callGithubRest({
     method: 'post',
     uri: 'https://api.github.com/graphql',
     data: {query, variables},
-    authorizationHeaderPrefix: 'bearer',
+    authMode: 'bearer'
   }).then(resp => {
     return resp.errors
       ? Promise.reject(resp.errors)
@@ -143,12 +144,17 @@ function callGitHubGraphql({query, variables}) {
   });
 }
 
-function callGitHubRest({method, uri, data, authorizationHeaderPrefix='token'}) {
+function callGithubRest({method, uri, data}) {
+  return callGithubBase({method, uri, data});
+}
+
+function callGithubBase({method, uri, data, authMode='basic'}) {
+  const githubAccessToken = getGitHubAccessToken();
   return request({
     uri,
     method,
     headers: {
-      Authorization: `${authorizationHeaderPrefix} ${getGitHubAccessToken()}`,
+      Authorization: authMode === 'basic' ? `Basic ${new Buffer(`${REPO_OWNER}:${githubAccessToken}`).toString('base64')}` : `bearer ${githubAccessToken}`,
       'Content-Type': 'application/json',
       'User-Agent': 'gish'
     },
