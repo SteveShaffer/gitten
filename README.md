@@ -45,8 +45,18 @@ Creates a GitHub PR from the current branch to `origin/master`.
 - TODO: Auto-gen a bunch of this stuff
 - TODO: Prompt to `commit` if local changes are unsaved?
 
+### `gish merge <pr-number>`
+
+Merges the GitHub pull request.
+Assumes squash and merge.
+
+- TODO: Better feedback when the merge is not possible and stuff
+- TODO: Be able to ID a PR by the ticket number (or title?)
+- TODO: Support other methods of merging
+
 ## TODOs
 
 - Use completely separate commands to reduce any confusion with git
   - `save` commit locally without pushing
   - `send`? (commit and) push
+- Remove all `console.log` statements

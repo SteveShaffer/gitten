@@ -4,6 +4,10 @@ const Git = require('simple-git'); // TODO: Switch to promises
 const request = require('request-promise');
 const yargs = require('yargs');
 
+// TODO: Make these configurable from a config file
+const REPO_OWNER = 'steveshaffer';
+const REPO_NAME = 'gish';
+
 // noinspection BadExpressionStatementJS
 yargs
   .scriptName('gish')
@@ -82,11 +86,11 @@ yargs
       // TODO: Use variables
       // TODO: Pull repo owner and name from config
       const query = `query {
-        repository(owner: "steveshaffer", name: "gish") {
+        repository(owner: "${REPO_OWNER}", name: "${REPO_NAME}") {
           id
         }
       }`;
-      callGitHubApi({query}).then(resp => {
+      callGitHubGraphql({query}).then(resp => {
         // TODO: Use variables
         const query = `mutation {
           createPullRequest(input: {
@@ -100,35 +104,68 @@ yargs
             }
           }
         }`;
-        callGitHubApi({query})
+        callGitHubGraphql({query})
       })
       ;
+    });
+  })
+  .command('merge [number]', 'squash and merge a GitHub pull request', yargs => {
+    yargs.positional('number', {
+      type: 'string',
+      describe: 'the pull request number'
+    })
+  }, argv => {
+    const pullRequestNumber = argv.number;
+    console.log('merging the PR');
+    callGitHubRest({ // Have to use GitHub REST API for now because GraphQL doesn't support squash-and-merge
+      method: 'put',
+      uri: `https://api.github.com/v3/repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pullRequestNumber}/merge`,
+      data: {
+        merge_method: 'squash'
+      }
+    }).then(() => {
+      console.log('merged');
     });
   })
   .help()
   .argv;
 
-function callGitHubApi({query, variables}) {
-  // TODO: Handle DNE
-  const githubAccessToken = fs.readFileSync('.github/credentials').toString().trim();
-  return request({
-    uri: 'https://api.github.com/graphql',
+function callGitHubGraphql({query, variables}) {
+  return callGitHubRest({
     method: 'post',
+    uri: 'https://api.github.com/graphql',
+    data: {query, variables}
+  }).then(resp => {
+    return resp.errors
+      ? Promise.reject(resp.errors)
+      : resp.data;
+  });
+}
+
+function callGitHubRest({method, uri, data}) {
+  return request({
+    uri,
+    method,
     headers: {
-      Authorization: `bearer ${githubAccessToken}`,
+      Authorization: `bearer ${getGitHubAccessToken()}`,
       'Content-Type': 'application/json',
       'User-Agent': 'gish'
     },
-    body: JSON.stringify({query, variables})
+    body: JSON.stringify(data)
   }).then(res => {
+    // TODO: Check for status code
     let parsedRes;
     try {
       parsedRes = JSON.parse(res);
     } catch (e) {
-      return Promise.reject('Error parsing GraphQL response');
+      return Promise.reject('Error parsing API JSON response');
     }
-    return parsedRes.errors
-      ? Promise.reject(parsedRes.errors)
-      : parsedRes.data;
+    return parsedRes;
   });
+}
+
+function getGitHubAccessToken() {
+  // TODO: Handle DNE
+  // TODO: Traverse the directory hierarchy looking for the first folder that contains this
+  const githubAccessToken = fs.readFileSync('.github/credentials').toString().trim();
 }
