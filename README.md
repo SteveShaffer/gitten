@@ -37,6 +37,20 @@ Commits all changes with the given message
 - TODO: Auto-prefix the message with the current ticket number (if applicable)
 - TODO: Auto-divine the message if none is provided
 - TODO: Auto-push: add auto rebase or merge if possible and interactive feedback if not
+- TODO: Deprecate in favor of `save`
+
+### `gish save [message]`
+
+"Saves" local changes to the current branch.
+If `message` is provided, it will overwrite the current commit message.
+If the branch on `origin` is ahead of the current local copy, it will attempt to automatically merge those.
+If there are conflicts, it will instruct the user to fix those.
+At the end of it all, the branch should be in sync with `origin` and have only 1 commit.
+
+In `git` terms, it's basically like `git add . && git commit -a` if you never had to worry about being out of sync with the remote tracking branch.
+So there's a good amount of merging, squash-rebasing, and then force-pushing going on here.
+
+- TODO: Build it
 
 ### `gish pr <title>`
 
@@ -56,9 +70,20 @@ Assumes squash and merge.
 - TODO: Support other methods of merging
 - TODO: Delete the branch after merge
 
+## Assumptions
+
+- `github.com/steveshaffer/gish` is the only repo currently supported
+- `steveshaffer` is the only GitHub user currently supported
+- `./.github/credentials` exists and contains a GitHub personal access token as its only non-whitespace content
+- `origin` is the only remote and represents a GitHub repo
+- `master` is the integration branch and is not intended to be committed directly to
+- All commits to `master` are intended to be squashed PR merges
+
 ## TODOs
 
 - Use completely separate commands to reduce any confusion with git
   - `save` commit locally without pushing
   - `send`? (commit and) push
 - Remove all `console.log` statements
+- Fix how it runs as a "binary."  Should be more standard and able to run with `npx`
+- Make it into an actual binary with something like pkg.
