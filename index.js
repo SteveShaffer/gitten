@@ -24,16 +24,16 @@ yargs
       git.deleteLocalBranch(branchName, () => {
         console.log('deleted local copy');
         // TODO: Check remote branch exists
-        git.branch('-r', (err, branchSummary) => {
-          let baseBranch = 'master';
-          if (branchSummary.branches[branchName]) {
+        git.branch({'-r': null}, (err, branchSummary) => {
+          const remoteBranchName = `origin/${branchName}`;
+          let baseBranch = `origin/master`;
+          if (branchSummary.branches[remoteBranchName]) {
             console.log('branch exists on origin');
-            baseBranch = branchName;
+            baseBranch = remoteBranchName;
           } else {
             console.log('branch does not exist on origin. cutting from master');
           }
-          // TODO: I think this is happening too fast because we're getting an error that says the branch already exists
-          git.checkout(['-b', branchName, `origin/${baseBranch}`], () => {
+          git.checkout(['-b', branchName, baseBranch], () => {
             console.log('checked out from origin');
           });
 
