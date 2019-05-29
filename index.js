@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 const Git = require('simple-git'); // TODO: Switch to promises
 const yargs = require('yargs');
 
@@ -63,5 +65,58 @@ yargs
       });
     })
   })
+  .command('pr [title]', 'create a GitHub pull request from the current branch to master', yargs => {
+    yargs.positional('title', {
+      type: 'string',
+      describe: 'the pull request title'
+    })
+  }, argv => {
+    git.status((err, status) => {
+      // TODO: Handle errors
+      const currentBranch = status.current; // TODO: Validate this is a branch and not detached HEAD and stuff
+      // TODO: commit & push if necessary
+      // TODO: Use variables
+      // TODO: Pull repo owner and name from config
+      const query = `query {
+        repository(owner: "steveshaffer", name: "gish") {
+          id
+        }
+      }`;
+      callGitHubApi({query}).then(resp => {
+        // TODO: Use variables
+        const query = `mutation {
+          createPullRequest(input: {
+            repositoryId: "${resp.repository.id}="
+            baseRefName: "master"
+            headRefName: "${currentBranch}"
+            title: "${argv.title}"
+          }) {
+            pullRequest {
+              id
+            }
+          }
+        }`;
+        callGitHubApi({query})
+      })
+      ;
+    });
+  })
   .help()
   .argv;
+
+function callGitHubApi({query, variables}) {
+  // TODO: Handle DNE
+  const githubAccessToken = fs.readFileSync('.github/credentials').trim();
+  fetch('https://api.github.com/graphql', {
+    method: 'post',
+    headers: {
+      Authorization: `bearer ${githubAccessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({query, variables})
+  }).then(res => res.json()).then(parsedRes => {
+    return parsedRes.errors
+      ? Promise.reject(parsedRes.errors)
+      : parsedRes.data;
+  });
+}
