@@ -52,7 +52,7 @@ yargs
     console.log('committing');
     git.add('.', () => { // TODO: Can combine into just git.commit(message, '.', ...?
       git.commit(message, () => {
-        console.log('right then.  they\'re committed.');
+        git.push();
       });
     });
   })

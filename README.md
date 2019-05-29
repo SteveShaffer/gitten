@@ -1,8 +1,11 @@
 # gish
 
+**HEAVILY IN-DEVELOPMENT.  DO NOT USE UNLESS YOU WANT TO REALLY MESS UP YOUR REPO!**
+
 A narrow and opinionated way to use git that works for me :)
 
-It relies heavily on checking out revisions
+It relies heavily on checking out detached HEADS, doing hard resets, being super opinionated about the merging strategy,
+and other things that are fringe enough to not be applicable to most workflows but are common enough to be applicable to a large amount of workflows (at least I hope).
 
 ## `gish switch <branch-name>`
 
@@ -20,4 +23,4 @@ Commits all changes with the given message
 
 TODO: Auto-prefix the message with the current ticket number (if applicable)
 TODO: Auto-divine the message if none is provided
-TODO: Auto-push? with auto rebase or merge if possible and interactive feedback if not
+TODO: Auto-push: add auto rebase or merge if possible and interactive feedback if not
