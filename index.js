@@ -50,8 +50,8 @@ yargs
     })
   }, function (argv) {
     const message = argv.message;
-    const git = Git(); // TODO: Is this ok for other directories and stuff?
     console.log('committing');
+    const git = Git(); // TODO: Is this ok for other directories and stuff?
     git.status((err, status) => {
       // TODO: Handle errors
       const currentBranch = status.current; // TODO: Validate this is a branch and not detached HEAD and stuff
@@ -71,6 +71,9 @@ yargs
       describe: 'the pull request title'
     })
   }, argv => {
+    const title = argv.title;
+    console.log('creating PR');
+    const git = Git(); // TODO: Is this ok for other directories and stuff?
     git.status((err, status) => {
       // TODO: Handle errors
       const currentBranch = status.current; // TODO: Validate this is a branch and not detached HEAD and stuff
@@ -89,7 +92,7 @@ yargs
             repositoryId: "${resp.repository.id}="
             baseRefName: "master"
             headRefName: "${currentBranch}"
-            title: "${argv.title}"
+            title: "${title}"
           }) {
             pullRequest {
               id
