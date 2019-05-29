@@ -134,7 +134,8 @@ function callGitHubGraphql({query, variables}) {
   return callGitHubRest({
     method: 'post',
     uri: 'https://api.github.com/graphql',
-    data: {query, variables}
+    data: {query, variables},
+    authorizationHeaderPrefix: 'bearer',
   }).then(resp => {
     return resp.errors
       ? Promise.reject(resp.errors)
@@ -142,12 +143,12 @@ function callGitHubGraphql({query, variables}) {
   });
 }
 
-function callGitHubRest({method, uri, data}) {
+function callGitHubRest({method, uri, data, authorizationHeaderPrefix='token'}) {
   return request({
     uri,
     method,
     headers: {
-      Authorization: `bearer ${getGitHubAccessToken()}`,
+      Authorization: `${authorizationHeaderPrefix} ${getGitHubAccessToken()}`,
       'Content-Type': 'application/json',
       'User-Agent': 'gish'
     },
