@@ -1,5 +1,4 @@
 const fs = require('fs');
-const path = require('path');
 
 const Git = require('simple-git'); // TODO: Switch to promises
 const request = require('request-promise');
@@ -121,7 +120,7 @@ yargs
     console.log('merging the PR');
     callGithubRest({ // Have to use GitHub REST API for now because GraphQL doesn't support squash-and-merge
       method: 'put',
-      uri: `/repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pullRequestNumber}/merge`,
+      uri: `repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pullRequestNumber}/merge`,
       data: {
         merge_method: 'squash'
       }
@@ -148,7 +147,7 @@ function callGithubGraphql({query, variables}) {
 function callGithubRest({method, uri, data}) {
   return callGithubBase({
     method,
-    uri: path.join('https://api.github.com', uri),
+    uri: `https://api.github.com/${uri}`,
     data
   });
 }
@@ -159,7 +158,7 @@ function callGithubBase({method, uri, data, bearerAuth = true}) {
     uri,
     method,
     headers: {
-      Authorization: bearerAuth ? `bearer ${githubAccessToken}` : `Basic ${new Buffer(`${REPO_OWNER}:${githubAccessToken}`).toString('base64')}`,
+      Authorization: bearerAuth ? `bearer ${githubAccessToken}` : `Basic ${new Buffer(`${GITHUB_USERNAME}:${githubAccessToken}`).toString('base64')}`,
       'Content-Type': 'application/json',
       'User-Agent': 'gish'
     },
