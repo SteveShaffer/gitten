@@ -1,4 +1,4 @@
-const Git = require('simple-git');
+const Git = require('simple-git'); // TODO: Switch to promises
 const yargs = require('yargs');
 
 // noinspection BadExpressionStatementJS
@@ -14,19 +14,44 @@ yargs
     const branchName = argv.branch;
     // TODO: Make config for assuming things like feature/XXX-#### and just having to specify #### to get the branch going
     console.log('switching to', branchName);
-    const git = Git();
-    // TODO: Switch to promises
+    const git = Git(); // TODO: Is this ok for other directories and stuff?
     git.fetch(() => {
       console.log('fetched');
+      // TODO: Switch to detached head
       // TODO: Make sure there's no local changes (or stash/unstash super cleverly)
       // TODO: Make sure local branch doesn't have new changes (probably prompt the user whether they want to nuke, keep, or push local changes)
 
       git.deleteLocalBranch(branchName, () => {
         console.log('deleted local copy');
-        // TODO: Check remove branch exists
-        git.checkout(['-b', branchName, 'origin/master'], () => {
-          console.log('checked out from origin');
-        })
+        // TODO: Check remote branch exists
+        git.branch('-r', (err, branchSummary) => {
+          let baseBranch = 'master';
+          if (branchSummary.branches[branchName]) {
+            console.log('branch exists on origin');
+            baseBranch = branchName;
+          } else {
+            console.log('branch does not exist on origin. cutting from master');
+          }
+          git.checkout(['-b', branchName, `origin/${baseBranch}`], () => {
+            console.log('checked out from origin');
+          });
+
+        });
+      });
+    });
+  })
+  .command('commit [message]', (yargs) => {
+    yargs.positional('message', {
+      type: 'string',
+      describe: 'the commit message'
+    })
+  }, function (argv) {
+    const message = argv.message;
+    const git = Git(); // TODO: Is this ok for other directories and stuff?
+    console.log('committing');
+    git.add('.', () => { // TODO: Can combine into just git.commit(message, '.', ...?
+      git.commit(message, () => {
+        console.log('right then.  they\'re committed.');
       });
     });
   })
