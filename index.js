@@ -109,7 +109,7 @@ yargs
 
 function callGitHubApi({query, variables}) {
   // TODO: Handle DNE
-  const githubAccessToken = fs.readFileSync('.github/credentials').trim();
+  const githubAccessToken = fs.readFileSync('.github/credentials').toString().trim();
   fetch('https://api.github.com/graphql', {
     method: 'post',
     headers: {
