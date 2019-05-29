@@ -90,23 +90,25 @@ yargs
             id
           }
         }`;
-        callGithubGraphql({query}).then(resp => {
-          // TODO: Use variables
-          const query = `mutation {
-            createPullRequest(input: {
-              repositoryId: "${resp.repository.id}="
-              baseRefName: "master"
-              headRefName: "${currentBranch}"
-              title: "${title}"
-            }) {
-              pullRequest {
-                id
+        callGithubGraphql({query})
+          .then(resp => {
+            // TODO: Use variables
+            const query = `mutation {
+              createPullRequest(input: {
+                repositoryId: "${resp.repository.id}"
+                baseRefName: "master"
+                headRefName: "${currentBranch}"
+                title: "${title}"
+              }) {
+                pullRequest {
+                  id
+                }
               }
-            }
-          }`;
-          callGithubGraphql({query});
-          // TODO: Log the PR number, ideally with a link to view it
-        });
+            }`;
+            callGithubGraphql({query});
+            // TODO: Log the PR number, ideally with a link to view it
+          })
+          .catch(err => console.error(err));
       });
     });
   })
@@ -180,15 +182,21 @@ function callGithubBase({method, uri, data, bearerAuth = false}) {
 
 function getCurrentRepoGithubInfo(callback) {
   const git = Git(); // TODO: Is this ok for other directories and stuff?
-  git.getRemotes(true,(err, remotes) => {
+  git.getRemotes(true, (err, remotes) => {
     const url = remotes.find(remote => remote.name === 'origin').refs.fetch; // NOTE: Doesn't support differentiating fetch vs. push URLs
     const matches = url.match(/^https:\/\/github\.com\/(.*)\/(.*)$/); // NOTE: Assumes https
     if (matches.length !== 3) {
       throw new Error('Invalid GitHub URL found for remote origin');
     }
+    const owner = matches[1];
+    let name = matches[2];
+    const GIT_SUFFIX = '.git';
+    if (name.endsWith(GIT_SUFFIX)) {
+      name = name.slice(0, name.length - GIT_SUFFIX.length);
+    }
     callback(null, {
-      owner: matches[1],
-      name: matches[2],
+      owner,
+      name,
       url
     });
   });
