@@ -11,6 +11,7 @@ and other things that are fringe enough to not be applicable to most workflows b
 
 1. Create a GitHub personal access token at https://github.com/settings/tokens/new and give it the `repo` scopes.
 1. Write the value of that token into a file called `.github/credentials` in this repo.
+1. Add the `gish` command to your $PATH.
 
 - TODO: Make repo owner and name dynamic based on .github/config file
 - TODO: Allow for .github/credentials to be defined in any parent directory of this repo

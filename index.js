@@ -105,7 +105,8 @@ yargs
             }
           }
         }`;
-        callGithubGraphql({query})
+        callGithubGraphql({query});
+        // TODO: Log the PR number, ideally with a link to view it
       })
       ;
     });
