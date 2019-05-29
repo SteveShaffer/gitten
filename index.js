@@ -16,55 +16,42 @@ yargs
       type: 'string',
       describe: 'the branch name (in origin) that you want to switch to (i.e. checkout)'
     })
-  }, function (argv) {
+  }, async argv => {
     const branchName = argv.branch;
     // TODO: Make config for assuming things like feature/XXX-#### and just having to specify #### to get the branch going
     console.log('switching to', branchName);
     const git = Git(); // TODO: Consolidate this init stuff
     // TODO: Make sure there's no local changes (or stash/unstash super cleverly)
     // TODO: Make sure local branch doesn't have new changes (probably prompt the user whether they want to nuke, keep, or push local changes)
-    git.fetch()
-      .then(detachHead)
-      .then(() => git.deleteLocalBranch(branchName)
-        .then(() => console.log('deleted local copy'))
-        .catch(() => {  // TODO: There is an error message written to console
-          // Swallowing errors because we're fine if there is no local branch to delete
-          // and simple-git doesn't support .finally
-          // TODO: Do I need to return a resolve or is returning not-a-rejection enough to resolve?
-          return Promise.resolve();
-        })
-      )
-      .then(checkoutFromRemote);
-
-    /**
-     * Checkout branch from remote if it exists or check it out from origin/master if it doesn't
-     * @return {Promise<simplegit.BranchSummary | never>}
-     */
-    function checkoutFromRemote() {
-      return git.branch({'-r': null}).then(branchSummary => {
-        const remoteBranchName = `origin/${branchName}`;
-        if (branchSummary.branches[remoteBranchName]) {
-          console.log('branch exists on origin');
-          return git.checkout(['-b', branchName, remoteBranchName]).then(() => {
-            console.log(`checked out branch from ${remoteBranchName}`);
-          });
-        } else {
-          console.log('branch does not exist on origin. cutting from master');
-          return git.checkout(['-b', branchName, '--no-track', 'origin/master']).then(() => {
-            console.log('checked out branch from origin/master');
-          });
-        }
-      });
+    await git.fetch();
+    await detachHead();
+    try {
+      await git.deleteLocalBranch(branchName);
+      console.log('deleted local copy');
+    } catch(e) {
+      // TODO: Check for expected error type
+      // TODO: There is still an error message written to console even if we swallow
+      console.log('no local copy to delete');
+    }
+    let branchSummary = await git.branch({'-r': null});
+    const remoteBranchName = `origin/${branchName}`;
+    if (branchSummary.branches[remoteBranchName]) {
+      console.log(`checking out branch from ${remoteBranchName}`);
+      await git.checkout(['-b', branchName, remoteBranchName]);
+    } else {
+      console.log('checking out branch from origin/master');
+      await git.checkout(['-b', branchName, '--no-track', 'origin/master']);
     }
 
     /**
      * Go into detached HEAD mode so we can do whatever we want with branches
      * @return {Promise<void | never>}
+     * @todo Convert this into a shared function and use all over the place (along with fetch)
      */
-    function detachHead() {
+    async function detachHead() {
       console.log('Entering detached HEAD mode');
-      return git.revparse(['HEAD'])
-        .then(commitHash => git.checkout(commitHash.trim()));
+      let commitHash = await git.revparse(['HEAD']);
+      await git.checkout(commitHash.trim());
     }
   })
   .command('commit [message]', 'commit current changes', (yargs) => {
@@ -72,58 +59,52 @@ yargs
       type: 'string',
       describe: 'the commit message'
     })
-  }, function (argv) {
+  }, async argv => {
     const message = argv.message;
     console.log('committing and pushing');
     const git = Git(); // TODO: Consolidate this init stuff
-    // TODO: Handle errors
     // TODO: Validate this is a branch and not detached HEAD and stuff
-    getCurrentBranchName()
-      .then(currentBranch => (
-        // TODO: Can combine add and commit into just git.commit(message, '.', ...?
-        git.add('.')
-          .then(() => git.commit(message))
-          .then(() => git.push('origin', currentBranch, {'-u': null}))
-          .then(() => console.log('done'))
-      ));
+    const currentBranch = await getCurrentBranchName();
+
+    // TODO: Can combine add and commit into just git.commit(message, '.', ...?
+    await git.add('.');
+    await git.commit(message);
+    await git.push('origin', currentBranch, {'-u': null});
+    console.log('done');
   })
   .command('pr [title]', 'create a GitHub pull request from the current branch to master', yargs => {
     yargs.positional('title', {
       type: 'string',
       describe: 'the pull request title'
     })
-  }, argv => {
+  }, async argv => {
     const title = argv.title;
     console.log('creating PR');
-    getCurrentBranchName().then(currentBranch => {
-      // TODO: commit & push if necessary
-      getCurrentRepoGithubInfo().then(repoInfo => {
-        // TODO: Handle errors
-        getRepositoryId({owner: repoInfo.owner, name: repoInfo.name})
-          .then(repositoryId => createPullRequest({repositoryId, headBranch: currentBranch, title}))
-          .then(pullRequest => console.log(pullRequest.url))
-          .catch(err => console.error(err));
-      });
-    });
+    const currentBranch = await getCurrentBranchName();
+    // TODO: commit & push if necessary
+    const repoInfo = await getCurrentRepoGithubInfo();
+    const repositoryId = await getRepositoryId({owner: repoInfo.owner, name: repoInfo.name});
+    const pullRequest = await createPullRequest({repositoryId, headBranch: currentBranch, title});
+    console.log(pullRequest.url);
   })
   .command('merge [number]', 'squash and merge a GitHub pull request', yargs => {
     yargs.positional('number', {
       type: 'string',
       describe: 'the pull request number'
     })
-  }, argv => {
+  }, async argv => {
     const pullRequestNumber = argv.number;
     console.log('merging the PR');
-    getCurrentRepoGithubInfo()
-      .then(repoInfo => callGithubRest({ // Have to use GitHub REST API for now because GraphQL doesn't support squash-and-merge
-        method: 'put',
-        uri: `repos/${repoInfo.owner}/${repoInfo.name}/pulls/${pullRequestNumber}/merge`,
-        data: {
-          merge_method: 'squash'
-        }
-      }))
-      .then(() => console.log('merged'));
-      // TODO: Delete the branch after merge (and maybe delete local branch too, and maybe switch to or detached head on master?)
+    const repoInfo = await getCurrentRepoGithubInfo();
+    await callGithubRest({ // Have to use GitHub REST API for now because GraphQL doesn't support squash-and-merge
+      method: 'put',
+      uri: `repos/${repoInfo.owner}/${repoInfo.name}/pulls/${pullRequestNumber}/merge`,
+      data: {
+        merge_method: 'squash'
+      }
+    });
+    console.log('merged');
+    // TODO: Delete the branch after merge (and maybe delete local branch too, and maybe switch to or detached head on master?)
   })
   .help()
   .argv;
@@ -134,17 +115,17 @@ yargs
  * @param variables {object} The GraphQL variables
  * @return {PromiseLike<never> | Promise<never>} Response data
  */
-function callGithubGraphql({query, variables}) {
-  return callGithubBase({
+async function callGithubGraphql({query, variables}) {
+  const resp = await callGithubBase({
     method: 'post',
     uri: 'https://api.github.com/graphql',
     data: {query, variables},
     bearerAuth: true
-  }).then(resp => {
-    return resp.errors
-      ? Promise.reject(resp.errors)
-      : resp.data;
   });
+  if (resp.errors) {
+    throw new Error(`Error calling GitHub GraphQL API. ${JSON.stringify(resp.errors)}`);
+  }
+  return resp.data;
 }
 
 /**
@@ -154,8 +135,8 @@ function callGithubGraphql({query, variables}) {
  * @param data {object} Data to put in the request body
  * @return {*|PromiseLike<T|never>|Promise<T|never>} Response data
  */
-function callGithubRest({method, uri, data}) {
-  return callGithubBase({
+async function callGithubRest({method, uri, data}) {
+  return await callGithubBase({
     method,
     uri: `https://api.github.com/${uri}`,
     data
@@ -170,9 +151,9 @@ function callGithubRest({method, uri, data}) {
  * @param bearerAuth {boolean=false} Use bearer auth. Otherwise use Basic auth
  * @return {*|PromiseLike<T | never>|Promise<T | never>} Response data
  */
-function callGithubBase({method, uri, data, bearerAuth = false}) {
+async function callGithubBase({method, uri, data, bearerAuth = false}) {
   const githubAccessToken = getGitHubAccessToken();
-  return request({
+  let res = await request({
     uri,
     method,
     headers: {
@@ -181,16 +162,8 @@ function callGithubBase({method, uri, data, bearerAuth = false}) {
       'User-Agent': 'gish'
     },
     body: JSON.stringify(data)
-  }).then(res => {
-    // TODO: Reject on error status codes
-    let parsedRes;
-    try {
-      parsedRes = JSON.parse(res);
-    } catch (e) {
-      return Promise.reject('Error parsing API JSON response');
-    }
-    return parsedRes;
   });
+  return JSON.parse(res);
 }
 
 /**
@@ -200,9 +173,9 @@ function callGithubBase({method, uri, data, bearerAuth = false}) {
  * @param title
  * @return {*|PromiseLike<T | never>|Promise<T | never>} The number of the created PR
  */
-function createPullRequest({repositoryId, headBranch, title}) {
+async function createPullRequest({repositoryId, headBranch, title}) {
   // TODO: Use variables
-  return callGithubGraphql({
+  let resp = await callGithubGraphql({
     query: `mutation {
       createPullRequest(input: {
         repositoryId: "${repositoryId}"
@@ -216,44 +189,45 @@ function createPullRequest({repositoryId, headBranch, title}) {
         }
       }
     }`
-  }).then(resp => resp.createPullRequest.pullRequest);
+  });
+  return resp.createPullRequest.pullRequest;
 }
 
 /**
  * Returns the current branch name checked out on disk
- * @return {Promise<string | never>} Current branch name
+ * @return {Promise<string>} Current branch name
  */
-function getCurrentBranchName() {
-  const git = Git(); // TODO: Consolidate this init stuff
+async function getCurrentBranchName() {
+  // TODO: Consolidate git init stuff
   // TODO: Handle errors
   // TODO: Validate this is a branch and not detached HEAD and stuff
-  return git.status().then(status => status.current);
+  let status = await Git().status();
+  return status.current;
 }
 
 /**
  * Gets GitHub info for the current repo
  * @return {Promise<{owner: string, name: string, url: string} | never>}
  */
-function getCurrentRepoGithubInfo() {
+async function getCurrentRepoGithubInfo() {
   const git = Git(); // TODO: Consolidate this init stuff
-  return git.getRemotes(true).then(remotes => {
-    const url = remotes.find(remote => remote.name === 'origin').refs.fetch; // NOTE: Doesn't support differentiating fetch vs. push URLs
-    const matches = url.match(/^https:\/\/github\.com\/(.*)\/(.*)$/); // NOTE: Assumes https
-    if (matches.length !== 3) {
-      throw new Error('Invalid GitHub URL found for remote origin');
-    }
-    const owner = matches[1];
-    let name = matches[2];
-    const GIT_SUFFIX = '.git';
-    if (name.endsWith(GIT_SUFFIX)) {
-      name = name.slice(0, name.length - GIT_SUFFIX.length);
-    }
-    return {
-      owner,
-      name,
-      url
-    };
-  });
+  let remotes = await git.getRemotes(true);
+  const url = remotes.find(remote => remote.name === 'origin').refs.fetch;
+  const matches = url.match(/^https:\/\/github\.com\/(.*)\/(.*)$/);
+  if (matches.length !== 3) {
+    throw new Error('Invalid GitHub URL found for remote origin');
+  }
+  const owner = matches[1];
+  let name = matches[2];
+  const GIT_SUFFIX = '.git';
+  if (name.endsWith(GIT_SUFFIX)) {
+    name = name.slice(0, name.length - GIT_SUFFIX.length);
+  }
+  return {
+    owner,
+    name,
+    url
+  };
 }
 
 /**
@@ -272,13 +246,14 @@ function getGitHubAccessToken() {
  * @param name
  * @return {*|PromiseLike<T | never>|Promise<T | never>} The repository ID
  */
-function getRepositoryId({owner, name}) {
+async function getRepositoryId({owner, name}) {
   // TODO: Use variables
-  return callGithubGraphql({
+  let resp = await callGithubGraphql({
     query: `query {
       repository(owner: "${owner}", name: "${name}") {
         id
       }
     }`
-  }).then(resp => resp.repository.id);
+  });
+  return resp.repository.id;
 }
