@@ -145,10 +145,10 @@ function callGithubGraphql({query, variables}) {
   });
 }
 
-function callGithubRest({method, path, data}) {
+function callGithubRest({method, uri, data}) {
   return callGithubBase({
     method,
-    uri: path.join('https://api.github.com', path),
+    uri: path.join('https://api.github.com', uri),
     data
   });
 }
