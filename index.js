@@ -116,7 +116,8 @@ function callGitHubApi({query, variables}) {
     method: 'post',
     headers: {
       Authorization: `bearer ${githubAccessToken}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'User-Agent': 'gish'
     },
     body: JSON.stringify({query, variables})
   }).then(res => {
