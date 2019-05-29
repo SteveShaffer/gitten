@@ -32,6 +32,7 @@ yargs
           } else {
             console.log('branch does not exist on origin. cutting from master');
           }
+          // TODO: I think this is happening too fast because we're getting an error that says the branch already exists
           git.checkout(['-b', branchName, `origin/${baseBranch}`], () => {
             console.log('checked out from origin');
           });
