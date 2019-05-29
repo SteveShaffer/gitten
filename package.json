@@ -6,6 +6,9 @@
   "repository": "https://github.com/SteveShaffer/gish.git",
   "author": "Steve Shaffer <steve@shaffer.ninja>",
   "license": "MIT",
+  "scripts": {
+    "test": "./test/test.sh"
+  },
   "dependencies": {
     "request": "^2.88.0",
     "request-promise": "^4.2.4",

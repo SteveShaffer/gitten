@@ -18,6 +18,12 @@ and other things that are fringe enough to not be applicable to most workflows b
 - TODO: Do research on if there's any standards around sharing GitHub credentials through dotfiles
 - TODO: Provide a mechanism to interactively collect the necessary credential information and store it (i.e. by asking the user for their username and password once)
 
+## Testing
+
+```text
+yarn test
+```
+
 ## Command Reference
 
 ### `gish switch <branch-name>`
@@ -59,6 +65,7 @@ Creates a GitHub PR from the current branch to `origin/master`.
 - TODO: Support body
 - TODO: Auto-gen a bunch of this stuff
 - TODO: Prompt to `commit` if local changes are unsaved?
+- TODO: Return the URL
 
 ### `gish merge <pr-number>`
 
@@ -66,13 +73,12 @@ Merges the GitHub pull request.
 Assumes squash and merge.
 
 - TODO: Better feedback when the merge is not possible and stuff
-- TODO: Be able to ID a PR by the ticket number (or title?)
+- TODO: Be able to ID a PR by the ticket number (or title?) or URL
 - TODO: Support other methods of merging
 - TODO: Delete the branch after merge
 
 ## Assumptions
 
-- `github.com/steveshaffer/gish` is the only repo currently supported
 - `steveshaffer` is the only GitHub user currently supported
 - `./.github/credentials` exists and contains a GitHub personal access token as its only non-whitespace content
 - `origin` is the only remote and represents a GitHub repo
