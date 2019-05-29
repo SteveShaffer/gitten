@@ -1,6 +1,7 @@
 const fs = require('fs');
 
 const Git = require('simple-git'); // TODO: Switch to promises
+const request = require('request');
 const yargs = require('yargs');
 
 // noinspection BadExpressionStatementJS
@@ -110,14 +111,21 @@ yargs
 function callGitHubApi({query, variables}) {
   // TODO: Handle DNE
   const githubAccessToken = fs.readFileSync('.github/credentials').toString().trim();
-  fetch('https://api.github.com/graphql', {
+  return request({
+    uri: 'https://api.github.com/graphql',
     method: 'post',
     headers: {
       Authorization: `bearer ${githubAccessToken}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({query, variables})
-  }).then(res => res.json()).then(parsedRes => {
+  }).then(res => {
+    let parsedRes;
+    try {
+      parsedRes = JSON.parse(res);
+    } catch (e) {
+      return Promise.reject('Error parsing GraphQL response');
+    }
     return parsedRes.errors
       ? Promise.reject(parsedRes.errors)
       : parsedRes.data;

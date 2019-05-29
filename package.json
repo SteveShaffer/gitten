@@ -7,6 +7,7 @@
   "author": "Steve Shaffer <steve@shaffer.ninja>",
   "license": "MIT",
   "dependencies": {
+    "request": "^2.88.0",
     "simple-git": "^1.110.0",
     "yargs": "^13.2.2"
   }
