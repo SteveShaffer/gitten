@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const Git = require('simple-git'); // TODO: Switch to promises
+const Git = require('simple-git/promise');
 const request = require('request-promise');
 const yargs = require('yargs');
 
@@ -21,30 +21,42 @@ yargs
     // TODO: Make config for assuming things like feature/XXX-#### and just having to specify #### to get the branch going
     console.log('switching to', branchName);
     const git = Git(); // TODO: Is this ok for other directories and stuff?
-    git.fetch(() => {
-      console.log('fetched');
-      // TODO: Switch to detached head
+    git.fetch().then(() => {
+
+      // Go into detached HEAD
+      // TODO: Extract into helper function and use all over the place
+      console.log('Entering detached HEAD mode');
+      git.revparse(['HEAD'])
+        .then(commitHash => git.checkout(commitHash.trim()))
+        .then(createLocalBranch);
+
       // TODO: Make sure there's no local changes (or stash/unstash super cleverly)
       // TODO: Make sure local branch doesn't have new changes (probably prompt the user whether they want to nuke, keep, or push local changes)
 
-      git.deleteLocalBranch(branchName, () => {
-        console.log('deleted local copy');
-        // TODO: Check remote branch exists
-        git.branch({'-r': null}, (err, branchSummary) => {
-          const remoteBranchName = `origin/${branchName}`;
-          if (branchSummary.branches[remoteBranchName]) {
-            console.log('branch exists on origin');
-            git.checkout(['-b', branchName, remoteBranchName], () => {
-              console.log(`checked out branch from ${remoteBranchName}`);
-            });
-          } else {
-            console.log('branch does not exist on origin. cutting from master');
-            git.checkout(['-b', branchName, '--no-track', 'origin/master'], () => {
-              console.log('checked out branch from origin/master');
-            });
-          }
-        });
-      });
+      function createLocalBranch() {
+        return git.deleteLocalBranch(branchName)
+          .then(checkoutFromRemote)
+          .catch(checkoutFromRemote);
+
+        function checkoutFromRemote() {
+          console.log('deleted local copy');
+          // TODO: Check remote branch exists
+          return git.branch({'-r': null}).then(branchSummary => {
+            const remoteBranchName = `origin/${branchName}`;
+            if (branchSummary.branches[remoteBranchName]) {
+              console.log('branch exists on origin');
+              return git.checkout(['-b', branchName, remoteBranchName]).then(() => {
+                console.log(`checked out branch from ${remoteBranchName}`);
+              });
+            } else {
+              console.log('branch does not exist on origin. cutting from master');
+              return git.checkout(['-b', branchName, '--no-track', 'origin/master']).then(() => {
+                console.log('checked out branch from origin/master');
+              });
+            }
+          });
+        }
+      }
     });
   })
   .command('commit [message]', 'commit current changes', (yargs) => {
@@ -56,13 +68,13 @@ yargs
     const message = argv.message;
     console.log('committing');
     const git = Git(); // TODO: Is this ok for other directories and stuff?
-    git.status((err, status) => {
+    git.status().then(status => {
       // TODO: Handle errors
       const currentBranch = status.current; // TODO: Validate this is a branch and not detached HEAD and stuff
-      git.add('.', () => { // TODO: Can combine into just git.commit(message, '.', ...?
-        git.commit(message, () => {
+      git.add('.').then(() => { // TODO: Can combine into just git.commit(message, '.', ...?
+        git.commit(message).then(() => {
           console.log('pushing');
-          git.push('origin', currentBranch, {'-u': null}, () => {
+          git.push('origin', currentBranch, {'-u': null}).then(() => {
             console.log('done');
           });
         });
@@ -78,12 +90,12 @@ yargs
     const title = argv.title;
     console.log('creating PR');
     const git = Git(); // TODO: Is this ok for other directories and stuff?
-    git.status((err, status) => {
+    git.status().then(status => {
       // TODO: Handle errors
       const currentBranch = status.current; // TODO: Validate this is a branch and not detached HEAD and stuff
       // TODO: commit & push if necessary
       // TODO: Use variables
-      getCurrentRepoGithubInfo((err, repoInfo) => {
+      getCurrentRepoGithubInfo().then(repoInfo => {
         // TODO: Handle errors
         const query = `query {
           repository(owner: "${repoInfo.owner}", name: "${repoInfo.name}") {
@@ -120,7 +132,7 @@ yargs
   }, argv => {
     const pullRequestNumber = argv.number;
     console.log('merging the PR');
-    getCurrentRepoGithubInfo((err, repoInfo) => {
+    getCurrentRepoGithubInfo().then(repoInfo => {
       callGithubRest({ // Have to use GitHub REST API for now because GraphQL doesn't support squash-and-merge
         method: 'put',
         uri: `repos/${repoInfo.owner}/${repoInfo.name}/pulls/${pullRequestNumber}/merge`,
@@ -169,7 +181,7 @@ function callGithubBase({method, uri, data, bearerAuth = false}) {
     },
     body: JSON.stringify(data)
   }).then(res => {
-    // TODO: Check for status code
+    // TODO: Reject on error status codes
     let parsedRes;
     try {
       parsedRes = JSON.parse(res);
@@ -180,9 +192,9 @@ function callGithubBase({method, uri, data, bearerAuth = false}) {
   });
 }
 
-function getCurrentRepoGithubInfo(callback) {
+function getCurrentRepoGithubInfo() {
   const git = Git(); // TODO: Is this ok for other directories and stuff?
-  git.getRemotes(true, (err, remotes) => {
+  return git.getRemotes(true).then(remotes => {
     const url = remotes.find(remote => remote.name === 'origin').refs.fetch; // NOTE: Doesn't support differentiating fetch vs. push URLs
     const matches = url.match(/^https:\/\/github\.com\/(.*)\/(.*)$/); // NOTE: Assumes https
     if (matches.length !== 3) {
@@ -194,11 +206,11 @@ function getCurrentRepoGithubInfo(callback) {
     if (name.endsWith(GIT_SUFFIX)) {
       name = name.slice(0, name.length - GIT_SUFFIX.length);
     }
-    callback(null, {
+    return {
       owner,
       name,
       url
-    });
+    };
   });
 }
 
