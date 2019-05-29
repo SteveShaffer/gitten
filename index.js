@@ -178,5 +178,5 @@ function callGithubBase({method, uri, data, bearerAuth = false}) {
 function getGitHubAccessToken() {
   // TODO: Handle DNE
   // TODO: Traverse the directory hierarchy looking for the first folder that contains this
-  const githubAccessToken = fs.readFileSync('.github/credentials').toString().trim();
+  return fs.readFileSync('.github/credentials').toString().trim();
 }
