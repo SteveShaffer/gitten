@@ -26,17 +26,17 @@ yargs
         // TODO: Check remote branch exists
         git.branch({'-r': null}, (err, branchSummary) => {
           const remoteBranchName = `origin/${branchName}`;
-          let baseBranch = `origin/master`;
           if (branchSummary.branches[remoteBranchName]) {
             console.log('branch exists on origin');
-            baseBranch = remoteBranchName;
+            git.checkout(['-b', branchName, remoteBranchName], () => {
+              console.log(`checked out branch from ${remoteBranchName}`);
+            });
           } else {
             console.log('branch does not exist on origin. cutting from master');
+            git.checkout(['-b', branchName, '--no-track', 'origin/master'], () => {
+              console.log('checked out branch from origin/master');
+            });
           }
-          git.checkout(['-b', branchName, baseBranch], () => {
-            console.log('checked out from origin');
-          });
-
         });
       });
     });
