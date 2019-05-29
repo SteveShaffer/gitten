@@ -55,6 +55,7 @@ yargs
       const currentBranch = status.current; // TODO: Validate this is a branch and not detached HEAD and stuff
       git.add('.', () => { // TODO: Can combine into just git.commit(message, '.', ...?
         git.commit(message, () => {
+          console.log('pushing');
           git.push('origin', currentBranch, {'-u': null}, () => {
             console.log('done');
           });
