@@ -53,6 +53,7 @@ Assumes squash and merge.
 - TODO: Better feedback when the merge is not possible and stuff
 - TODO: Be able to ID a PR by the ticket number (or title?)
 - TODO: Support other methods of merging
+- TODO: Delete the branch after merge
 
 ## TODOs
 

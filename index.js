@@ -126,6 +126,7 @@ yargs
       }
     }).then(() => {
       console.log('merged');
+      // TODO: Delete the branch after merge (and maybe delete local branch too, and maybe switch to or detached head on master?)
     });
   })
   .help()
