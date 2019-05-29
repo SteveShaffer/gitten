@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 const Git = require('simple-git'); // TODO: Switch to promises
-const request = require('request');
+const request = require('request-promise');
 const yargs = require('yargs');
 
 // noinspection BadExpressionStatementJS
