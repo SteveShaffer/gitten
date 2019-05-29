@@ -40,7 +40,7 @@ yargs
       });
     });
   })
-  .command('commit [message]', (yargs) => {
+  .command('commit [message]', 'commit current changes', (yargs) => {
     yargs.positional('message', {
       type: 'string',
       describe: 'the commit message'
