@@ -50,13 +50,17 @@ yargs
     const message = argv.message;
     const git = Git(); // TODO: Is this ok for other directories and stuff?
     console.log('committing');
-    git.add('.', () => { // TODO: Can combine into just git.commit(message, '.', ...?
-      git.commit(message, () => {
-        git.push(() => {
-          console.log('done');
+    git.status((err, status) => {
+      // TODO: Handle errors
+      const currentBranch = status.current; // TODO: Validate this is a branch and not detached HEAD and stuff
+      git.add('.', () => { // TODO: Can combine into just git.commit(message, '.', ...?
+        git.commit(message, () => {
+          git.push('origin', currentBranch, {'-u': null}, () => {
+            console.log('done');
+          });
         });
       });
-    });
+    })
   })
   .help()
   .argv;
