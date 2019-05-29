@@ -121,7 +121,7 @@ yargs
     console.log('merging the PR');
     callGithubRest({ // Have to use GitHub REST API for now because GraphQL doesn't support squash-and-merge
       method: 'put',
-      path: `/repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pullRequestNumber}/merge`,
+      uri: `/repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pullRequestNumber}/merge`,
       data: {
         merge_method: 'squash'
       }
