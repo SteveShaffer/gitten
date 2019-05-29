@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 
 const Git = require('simple-git'); // TODO: Switch to promises
 const request = require('request-promise');
@@ -118,9 +119,9 @@ yargs
   }, argv => {
     const pullRequestNumber = argv.number;
     console.log('merging the PR');
-    callGithubBase({ // Have to use GitHub REST API for now because GraphQL doesn't support squash-and-merge
+    callGithubRest({ // Have to use GitHub REST API for now because GraphQL doesn't support squash-and-merge
       method: 'put',
-      uri: `https://api.github.com/v3/repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pullRequestNumber}/merge`,
+      path: `/repos/${REPO_OWNER}/${REPO_NAME}/pulls/${pullRequestNumber}/merge`,
       data: {
         merge_method: 'squash'
       }
@@ -132,11 +133,11 @@ yargs
   .argv;
 
 function callGithubGraphql({query, variables}) {
-  return callGithubRest({
+  return callGithubBase({
     method: 'post',
     uri: 'https://api.github.com/graphql',
     data: {query, variables},
-    authMode: 'bearer'
+    bearerAuth: true
   }).then(resp => {
     return resp.errors
       ? Promise.reject(resp.errors)
@@ -144,17 +145,21 @@ function callGithubGraphql({query, variables}) {
   });
 }
 
-function callGithubRest({method, uri, data}) {
-  return callGithubBase({method, uri, data});
+function callGithubRest({method, path, data}) {
+  return callGithubBase({
+    method,
+    uri: path.join('https://api.github.com', path),
+    data
+  });
 }
 
-function callGithubBase({method, uri, data, authMode='basic'}) {
+function callGithubBase({method, uri, data, bearerAuth = true}) {
   const githubAccessToken = getGitHubAccessToken();
   return request({
     uri,
     method,
     headers: {
-      Authorization: authMode === 'basic' ? `Basic ${new Buffer(`${REPO_OWNER}:${githubAccessToken}`).toString('base64')}` : `bearer ${githubAccessToken}`,
+      Authorization: bearerAuth ? `bearer ${githubAccessToken}` : `Basic ${new Buffer(`${REPO_OWNER}:${githubAccessToken}`).toString('base64')}`,
       'Content-Type': 'application/json',
       'User-Agent': 'gish'
     },
