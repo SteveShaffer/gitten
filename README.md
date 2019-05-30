@@ -90,6 +90,7 @@ Assumes squash and merge.
 - Use completely separate commands to reduce any confusion with git
   - `save` commit locally without pushing
   - `send`? (commit and) push
-- Remove all `console.log` statements
+- Remove all debugging `console.log` statements
 - Fix how it runs as a "binary."  Should be more standard and able to run with `npx`
 - Make it into an actual binary with something like pkg.
+- Catch all promise rejections
