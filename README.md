@@ -13,10 +13,12 @@ and other things that are fringe enough to not be applicable to most workflows b
 1. Write the value of that token into a file called `.github/credentials` in this repo.
 1. Add the `gish` command to your $PATH.
 
-- TODO: Make repo owner and name dynamic based on .github/config file
-- TODO: Allow for .github/credentials to be defined in any parent directory of this repo
-- TODO: Do research on if there's any standards around sharing GitHub credentials through dotfiles
-- TODO: Provide a mechanism to interactively collect the necessary credential information and store it (i.e. by asking the user for their username and password once)
+> TODOs
+> 
+> - Make repo owner and name dynamic based on .github/config file
+> - Allow for .github/credentials to be defined in any parent directory of this repo
+> - Do research on if there's any standards around sharing GitHub credentials through dotfiles
+> - Provide a mechanism to interactively collect the necessary credential information and store it (i.e. by asking the user for their username and password once)
 
 ## Testing
 
@@ -32,9 +34,11 @@ Checks out the current version of `<branch-name>` from `origin`.
 If branch does not exist in `origin`, it creates it off `origin/master`.
 Blows out any local copy of that branch that may already exist.
 
-- TODO: Check if local copy of branch is ahead of `origin`.
-If so, switch to the local copy and inform the user.
-If not, keep existing logic (which effectively fast-forwards the local copy if it's behind).
+> TODOs
+>
+> - Check if local copy of branch is ahead of `origin`.
+>   If so, switch to the local copy and inform the user.
+>   If not, keep existing logic (which effectively fast-forwards the local copy if it's behind).
 
 ### `gish commit <message>`
 
@@ -42,10 +46,11 @@ If not, keep existing logic (which effectively fast-forwards the local copy if i
 
 Commits all changes with the given message
 
-- TODO: Auto-prefix the message with the current ticket number (if applicable)
-- TODO: Auto-divine the message if none is provided
-- TODO: Auto-push: add auto rebase or merge if possible and interactive feedback if not
-- TODO: Deprecate in favor of `save`
+> TODOs
+>
+> - Auto-prefix the message with the current ticket number (if applicable)
+> - Auto-divine the message if none is provided
+> - Deprecate in favor of `save`
 
 ### `gish save [message]`
 
@@ -58,29 +63,33 @@ At the end of it all, the branch should be in sync with `origin` and have only 1
 In `git` terms, it's basically like `git add . && git commit -a && git push origin --force` if you never had to worry about being out of sync with the remote tracking branch.
 So there's a good amount of merging, squash-rebasing, and then force-pushing going on here.
 
-#### TODOs
-
-- Hone in default/reused messages
-- Auto-merging and conflict resolution stuff
+> TODOs
+>
+> - Hone in default/reused messages
+> - Auto-merging and conflict resolution stuff
+> - Commit descriptions
 
 ### `gish pr <title>`
 
 Creates a GitHub PR from the current branch to `origin/master`.
 
-- TODO: Support body
-- TODO: Auto-gen a bunch of this stuff
-- TODO: Prompt to `commit` if local changes are unsaved?
-- TODO: Return the URL
+> TODOs
+>
+> - Support body
+> - Auto-gen a bunch of this stuff
+> - Prompt to `commit`/`save` if local changes are unsaved?
 
 ### `gish merge <pr-number>`
 
 Merges the GitHub pull request.
 Assumes squash and merge.
 
-- TODO: Better feedback when the merge is not possible and stuff
-- TODO: Be able to ID a PR by the ticket number (or title?) or URL
-- TODO: Support other methods of merging
-- TODO: Delete the branch after merge
+> TODOs
+>
+> - Better feedback when the merge is not possible and stuff
+> - Be able to ID a PR by the ticket number (or title?) or URL
+> - Support other methods of merging beyond squash?
+> - Delete the branch after merge
 
 ## Assumptions
 
@@ -90,11 +99,9 @@ Assumes squash and merge.
 - `master` is the integration branch and is not intended to be committed directly to
 - All commits to `master` are intended to be squashed PR merges
 
-## TODOs
+## Overall TODOs
 
-- Use completely separate commands to reduce any confusion with git
-  - `save` commit locally without pushing
-  - `send`? (commit and) push
+- Get a better name
 - Remove all debugging `console.log` statements
 - Fix how it runs as a "binary."  Should be more standard and able to run with `npx`
 - Make it into an actual binary with something like pkg.
