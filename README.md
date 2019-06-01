@@ -45,7 +45,7 @@ Commits all changes with the given message
 - TODO: Auto-push: add auto rebase or merge if possible and interactive feedback if not
 - TODO: Deprecate in favor of `save`
 
-### `gish save [message]`
+### `gish save [message]` (Does not exist yet)
 
 "Saves" local changes to the current branch.
 If `message` is provided, it will overwrite the current commit message.
@@ -93,4 +93,3 @@ Assumes squash and merge.
 - Remove all debugging `console.log` statements
 - Fix how it runs as a "binary."  Should be more standard and able to run with `npx`
 - Make it into an actual binary with something like pkg.
-- Catch all promise rejections
