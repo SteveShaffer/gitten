@@ -6,5 +6,4 @@ yargs
   .scriptName('gish') // TODO: Better name
   .commandDir('commands')
   .demandCommand()
-  .help()
-  .argv;
+  .help().argv;
