@@ -93,3 +93,4 @@ Assumes squash and merge.
 - Remove all debugging `console.log` statements
 - Fix how it runs as a "binary."  Should be more standard and able to run with `npx`
 - Make it into an actual binary with something like pkg.
+- Figure out how to get prettier to run only on staged files during pre-commit hook

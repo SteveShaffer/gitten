@@ -11,7 +11,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "prettier --single-quote --trailing-comma all --write \"**/*.js\""
+      "pre-commit": "prettier --single-quote --trailing-comma all --write \"**/*.js\" && git add ."
     }
   },
   "dependencies": {
