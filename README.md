@@ -1,17 +1,84 @@
 # gish
 
-**HEAVILY IN-DEVELOPMENT.  DO NOT USE UNLESS YOU WANT TO REALLY MESS UP YOUR REPO!**
+git for humans
 
-A narrow and opinionated way to use git that works for me :)
+**WARNING: THIS IS HEAVILY IN-DEVELOPMENT.  DO NOT USE UNLESS YOU'RE WILLING TO MESS UP YOUR REPO!**
+
+## The Vision
+
+The current goal is to make git get out of the way and allow work flows that have just a few human-friendly commands 
+like `open`, `switch`, `save`, `pr`, and `merge` and rely on upfront configuration (often shared amongst an entire team)
+for sensible defaults so there's very little data collection needed at command time.
+
+```bash
+~ $ gish open my-repo-name
+Cloned repo https://github.com/steveshaffer/my-repo-name 
+
+my-repo-name $ gish switch 12345 # Where ABC-12345 is a ticket number
+Switched to branch feature/ABC-12345 and set ticket [ABC-12345 Users cannot login] status to "In Progress"
+
+# Edit files on disk...
+
+my-repo-name $ gish save "Fix login"
+Saved all changes with label "ABC-12345 Fix login" and pushed to GitHub
+
+my-repo-name $ gish pr
+Created pull request https://github.com/steveshaffer/my-repo-name/pull/42
+```
+
+*Go get the PR reviewed but there were changed requested...*
+
+```bash
+~ $ gish open my-repo-name@12345
+Opened ~/projects/github.com/steveshaffer/my-repo-name on branch feature/ABC-12345
+
+my-repo-name $ gish save
+Saved all changes with label "ABC-12345 Fix login" and pushed to GitHub
+```
+
+*Go get the PR approved...*
+
+```bash
+~ gish open my-repo-name
+Opened ~/projects/github.com/steveshaffer/my-repo-name on branch master
+
+my-repo-name $ gish merge 42
+Merged pull request https://github.com/steveshaffer/my-repo-name/pull/42
+```
+
+This is possible if we know your...
+
+- on-disk project directory (e.g. `~/projects`)
+- on-disk filing methodology (e.g. `~/projects/github.com/<owner>/<repo>`, `~/projects/<repo>`)
+- centralized source code hosting platform (e.g. GitHub) and credentials
+- branching methodology (e.g. trunk-based, git-flow, github-flow)
+- ticket system (e.g. Jira, GitHub issues)
+- ticket naming convention (e.g. ABC-12345)
+- commit message convention (e.g. "ABC-12345 <description>")
+- coordination between ticket system statuses and branching methodology (e.g. In Progress on checkout, Peer Review upon PR, Closed upon merge to master)
+
+The cross-product of the answers to all these questions could be bundled into a "plugin" for gish
+so we could support all kinds of different work flows from the same core set of commands.
+
+### The "gish-flow"?..
+
+The initial flow being supported is an unusual one that's useful for this because it happens to map 1:1 with the core commands.
+It's something like trunk-based development with a protected master branch and GitHub PRs that are squash-merged.
+But every commit is also pushed, and the squashing happens continually and forcefully upon every commit so there's only ever 1 commit on the branch/PR.
+
+It forces the reconciliation of conflicts between multiple developers working on the same branch to happen early and often (since commit and push are coupled).
+And it throws out any concern of a detailed commit history within the branch (since you're just going to squash-merge it anyway).
 
 It relies heavily on checking out detached HEADS, doing hard resets, being super opinionated about the merging strategy,
-and other things that are fringe enough to not be applicable to most workflows but are common enough to be applicable to a large amount of workflows (at least I hope).
+and other things that are fringe enough to not be applicable to many work flows but are common enough to be applicable to a large amount of work flows (at least I hope).
+
+The future hope is that we could also map these core commands to other more standard and complex workflows
 
 ## Setup
 
 1. Create a GitHub personal access token at https://github.com/settings/tokens/new and give it the `repo` scopes.
 1. Write the value of that token into a file called `.github/credentials` in this repo.
-1. Add the `gish` command to your $PATH.
+1. Add the `gish` command (in this project's root) to your $PATH.
 
 > TODOs
 > 
@@ -22,9 +89,13 @@ and other things that are fringe enough to not be applicable to most workflows b
 
 ## Testing
 
-```text
-yarn test
-```
+`yarn test` will run a happy-path script that tries out all the commands.
+There's no assertions or anything so it's possible for it to run without failure and still be executing incorrectly.
+Right now it's just a safety net for me as I'm hacking away.
+
+> TODOs
+>
+> - Use an actual testing framework and stuff
 
 ## Command Reference
 
@@ -78,6 +149,7 @@ Creates a GitHub PR from the current branch to `origin/master`.
 > - Support body
 > - Auto-gen a bunch of this stuff
 > - Prompt to `commit`/`save` if local changes are unsaved?
+> - Make STDOUT have a more narrative message by default but configurable to just give the PR ID, number, or URL so it can be called transactionally
 
 ### `gish merge <pr-number>`
 
@@ -107,3 +179,5 @@ Assumes squash and merge.
 - Make it into an actual binary with something like pkg.
 - Figure out how to get prettier to run only on staged files during pre-commit hook
 - Convert to TypeScript
+- Build a plugin framework to support various work flows (i.e. trunk-based, github-flow, git-flow, etc.)
+- Build a GUI cuz humans use GUIs
