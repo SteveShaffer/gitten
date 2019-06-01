@@ -38,6 +38,8 @@ If not, keep existing logic (which effectively fast-forwards the local copy if i
 
 ### `gish commit <message>`
 
+> I'll probably end up deprecating this pretty quickly in favor of `gish save` (see below)
+
 Commits all changes with the given message
 
 - TODO: Auto-prefix the message with the current ticket number (if applicable)
@@ -45,7 +47,7 @@ Commits all changes with the given message
 - TODO: Auto-push: add auto rebase or merge if possible and interactive feedback if not
 - TODO: Deprecate in favor of `save`
 
-### `gish save [message]` (Does not exist yet)
+### `gish save [message]`
 
 "Saves" local changes to the current branch.
 If `message` is provided, it will overwrite the current commit message.
@@ -53,10 +55,13 @@ If the branch on `origin` is ahead of the current local copy, it will attempt to
 If there are conflicts, it will instruct the user to fix those.
 At the end of it all, the branch should be in sync with `origin` and have only 1 commit.
 
-In `git` terms, it's basically like `git add . && git commit -a` if you never had to worry about being out of sync with the remote tracking branch.
+In `git` terms, it's basically like `git add . && git commit -a && git push origin --force` if you never had to worry about being out of sync with the remote tracking branch.
 So there's a good amount of merging, squash-rebasing, and then force-pushing going on here.
 
-- TODO: Build it
+#### TODOs
+
+- Hone in default/reused messages
+- Auto-merging and conflict resolution stuff
 
 ### `gish pr <title>`
 
@@ -94,3 +99,4 @@ Assumes squash and merge.
 - Fix how it runs as a "binary."  Should be more standard and able to run with `npx`
 - Make it into an actual binary with something like pkg.
 - Figure out how to get prettier to run only on staged files during pre-commit hook
+- Convert to TypeScript
