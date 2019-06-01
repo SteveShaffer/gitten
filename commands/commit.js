@@ -6,8 +6,8 @@ exports.builder = yargs => {
   yargs.positional('message', {
     type: 'string',
     describe: 'the commit message',
-    default: '.' // TODO: Have a better default commit message
-  })
+    default: '.', // TODO: Have a better default commit message
+  });
 };
 exports.handler = async argv => {
   const message = argv.message;

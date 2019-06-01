@@ -8,7 +8,7 @@ const GITHUB_USERNAME = 'steveshaffer';
 module.exports = {
   createPullRequest,
   getRepositoryId,
-  mergePullRequest
+  mergePullRequest,
 };
 
 /**
@@ -17,15 +17,17 @@ module.exports = {
  * @param variables {object} The GraphQL variables
  * @return {PromiseLike<never> | Promise<never>} Response data
  */
-async function callGithubGraphql({query, variables}) {
+async function callGithubGraphql({ query, variables }) {
   const resp = await callGithubBase({
     method: 'post',
     uri: 'https://api.github.com/graphql',
-    data: {query, variables},
-    bearerAuth: true
+    data: { query, variables },
+    bearerAuth: true,
   });
   if (resp.errors) {
-    throw new Error(`Error calling GitHub GraphQL API. ${JSON.stringify(resp.errors)}`);
+    throw new Error(
+      `Error calling GitHub GraphQL API. ${JSON.stringify(resp.errors)}`,
+    );
   }
   return resp.data;
 }
@@ -37,11 +39,11 @@ async function callGithubGraphql({query, variables}) {
  * @param data {object} Data to put in the request body
  * @return {*|PromiseLike<T|never>|Promise<T|never>} Response data
  */
-async function callGithubRest({method, uri, data}) {
+async function callGithubRest({ method, uri, data }) {
   return await callGithubBase({
     method,
     uri: `https://api.github.com/${uri}`,
-    data
+    data,
   });
 }
 
@@ -53,17 +55,21 @@ async function callGithubRest({method, uri, data}) {
  * @param bearerAuth {boolean=false} Use bearer auth. Otherwise use Basic auth
  * @return {*|PromiseLike<T | never>|Promise<T | never>} Response data
  */
-async function callGithubBase({method, uri, data, bearerAuth = false}) {
+async function callGithubBase({ method, uri, data, bearerAuth = false }) {
   const githubAccessToken = getGitHubAccessToken();
   let res = await request({
     uri,
     method,
     headers: {
-      Authorization: bearerAuth ? `bearer ${githubAccessToken}` : `Basic ${new Buffer(`${GITHUB_USERNAME}:${githubAccessToken}`).toString('base64')}`,
+      Authorization: bearerAuth
+        ? `bearer ${githubAccessToken}`
+        : `Basic ${new Buffer(
+            `${GITHUB_USERNAME}:${githubAccessToken}`,
+          ).toString('base64')}`,
       'Content-Type': 'application/json',
-      'User-Agent': 'gish'
+      'User-Agent': 'gish',
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   });
   return JSON.parse(res);
 }
@@ -75,7 +81,7 @@ async function callGithubBase({method, uri, data, bearerAuth = false}) {
  * @param title
  * @return {*|PromiseLike<T | never>|Promise<T | never>} The number of the created PR
  */
-async function createPullRequest({repositoryId, headBranch, title}) {
+async function createPullRequest({ repositoryId, headBranch, title }) {
   // TODO: Use variables
   let resp = await callGithubGraphql({
     query: `mutation {
@@ -90,7 +96,7 @@ async function createPullRequest({repositoryId, headBranch, title}) {
           url
         }
       }
-    }`
+    }`,
   });
   return resp.createPullRequest.pullRequest;
 }
@@ -102,7 +108,10 @@ async function createPullRequest({repositoryId, headBranch, title}) {
 function getGitHubAccessToken() {
   // TODO: Handle DNE
   // TODO: Traverse the directory hierarchy looking for the first folder that contains this
-  return fs.readFileSync('.github/credentials').toString().trim();
+  return fs
+    .readFileSync('.github/credentials')
+    .toString()
+    .trim();
 }
 
 /**
@@ -111,14 +120,14 @@ function getGitHubAccessToken() {
  * @param name
  * @return {*|PromiseLike<T | never>|Promise<T | never>} The repository ID
  */
-async function getRepositoryId({owner, name}) {
+async function getRepositoryId({ owner, name }) {
   // TODO: Use variables
   let resp = await callGithubGraphql({
     query: `query {
       repository(owner: "${owner}", name: "${name}") {
         id
       }
-    }`
+    }`,
   });
   return resp.repository.id;
 }
@@ -130,12 +139,13 @@ async function getRepositoryId({owner, name}) {
  * @param pullRequestNumber {number}
  * @return {Promise<void>}
  */
-async function mergePullRequest({repoOwner, repoName, pullRequestNumber}) {
-  await callGithubRest({ // Have to use GitHub REST API for now because GraphQL doesn't support squash-and-merge
+async function mergePullRequest({ repoOwner, repoName, pullRequestNumber }) {
+  await callGithubRest({
+    // Have to use GitHub REST API for now because GraphQL doesn't support squash-and-merge
     method: 'put',
     uri: `repos/${repoOwner}/${repoName}/pulls/${pullRequestNumber}/merge`,
     data: {
-      merge_method: 'squash'
-    }
+      merge_method: 'squash',
+    },
   });
 }

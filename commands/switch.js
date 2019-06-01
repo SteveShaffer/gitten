@@ -5,7 +5,8 @@ exports.desc = 'Switch to a branch.';
 exports.builder = yargs => {
   yargs.positional('branch', {
     type: 'string',
-    describe: 'the branch name (in origin) that you want to switch to (i.e. checkout)'
+    describe:
+      'the branch name (in origin) that you want to switch to (i.e. checkout)',
     // TODO: Make optional with default to master?
   });
 };
@@ -18,5 +19,5 @@ exports.handler = async argv => {
   await git.fetch();
   await git.detachHead();
   await git.deleteLocalBranch(branchName);
-  await git.checkoutBranchFromOrigin(branchName)
+  await git.checkoutBranchFromOrigin(branchName);
 };
