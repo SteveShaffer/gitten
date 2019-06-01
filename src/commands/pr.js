@@ -1,7 +1,7 @@
 const git = require('../git');
 const github = require('../github');
 
-exports.comomand = 'pr [title]';
+exports.command = 'pr <title>';
 exports.desc =
   'Create a GitHub pull request from the current branch to master.';
 exports.builder = yargs => {

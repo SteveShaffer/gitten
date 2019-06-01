@@ -10,6 +10,7 @@ module.exports = {
   getCurrentBranchName,
   getCurrentRepoGithubInfo,
   pushCurrentBranchToOrigin,
+  squashRebaseCurrentBranchAgainstOriginMaster,
 };
 
 /**
@@ -37,6 +38,7 @@ async function checkoutBranchFromOrigin(branchName) {
  * @return {Promise<void>}
  */
 async function commitAllChanges(message) {
+  console.log('committing all changes');
   const git = Git();
   // TODO: Can combine add and commit into just git.commit(message, '.', ...?
   await git.add('.');
@@ -66,10 +68,20 @@ async function deleteLocalBranch(branchName) {
  * @todo Convert this into a shared function and use all over the place (along with fetch)
  */
 async function detachHead() {
-  const git = Git();
   console.log('Entering detached HEAD mode');
-  let commitHash = await git.revparse(['HEAD']);
-  await git.checkout(commitHash.trim());
+  const git = Git();
+  await git.checkout(await getCommitHash('HEAD'));
+}
+
+/**
+ * Returns the commit hash of the given branch
+ * @param revName {string} The branch name
+ * @return {Promise<string>}
+ */
+async function getCommitHash(revName) {
+  const git = Git();
+  const commitHash = await git.revparse([revName]);
+  return commitHash.trim();
 }
 
 /**
@@ -112,10 +124,26 @@ async function getCurrentRepoGithubInfo() {
 
 /**
  * Pushes the current branch to origin
+ * @param force {boolean} Should we force push?
  * @return {Promise<void>}
+ * @todo Disallow pushing master?
  */
-async function pushCurrentBranchToOrigin() {
+async function pushCurrentBranchToOrigin(force) {
+  console.log(`${force ? 'FORCE ' : ''}pushing current branch to origin`);
   const git = Git();
   const currentBranch = await getCurrentBranchName();
-  await git.push('origin', currentBranch, { '-u': null });
+  const options = { '-u': null };
+  if (force) {
+    options['-f'] = null;
+  }
+  await git.push('origin', currentBranch, options);
+}
+
+async function squashRebaseCurrentBranchAgainstOriginMaster(message) {
+  console.log('squash rebasing current branch against origin master');
+  const git = Git();
+  await git.fetch();
+  await git.reset(['--soft', await getCommitHash('origin/master')]);
+  await git.add('.');
+  await git.commit(message);
 }

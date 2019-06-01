@@ -7,16 +7,33 @@ rm -rf temp
 mkdir temp
 cd temp
 
+## TODO: Boil down to `gish open gish-test`
 git clone https://github.com/SteveShaffer/gish-test
 cd gish-test
+
 mkdir .github
 cp ../../../.github/credentials .github/credentials # TODO: Make this not necessary
 
-gish switch test/${RANDOM_STRING}
+# Testing commit and pr
+gish switch test-commit/${RANDOM_STRING}
 date >> test.txt
 gish commit "test ${RANDOM_STRING}"
-gish pr "test PR ${RANDOM_STRING}"
+gish pr "test-commit PR ${RANDOM_STRING}"
 gish switch master
+# TODO: Add ability to merge PR by name? or URL
+# gish merge "test-commit PR ${RANDOM_STRING}"
 
-# TODO: Add ability to merge PR by name?
-# gish merge "test PR ${RANDOM_STRING}"
+# Testing save and pr
+gish switch test-save/${RANDOM_STRING}
+date >> test.txt
+gish save "test first save ${RANDOM_STRING}"
+gish pr "test-save PR ${RANDOM_STRING}"
+# TODO: Assert PR name is correct
+date >> test.txt
+gish save "test later ${RANDOM_STRING}"
+# TODO: Assert the first save isn't left in the commit history
+# TODO: Assert test.txt contains both lines
+# TODO: Add ability to merge PR by name? or URL
+# gish merge "test-save PR ${RANDOM_STRING}"
+
+# TODO: Test saving when there's conflicts
