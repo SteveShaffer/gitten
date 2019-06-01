@@ -7,7 +7,7 @@
   "author": "Steve Shaffer <steve@shaffer.ninja>",
   "license": "MIT",
   "scripts": {
-    "test": "./test/test.sh"
+    "test": "./test/happy-path.sh"
   },
   "dependencies": {
     "request": "^2.88.0",
