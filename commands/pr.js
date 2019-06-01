@@ -2,13 +2,14 @@ const git = require('../git');
 const github = require('../github');
 
 exports.comomand = 'pr [title]';
-exports.desc = 'Create a GitHub pull request from the current branch to master.';
+exports.desc =
+  'Create a GitHub pull request from the current branch to master.';
 exports.builder = yargs => {
   yargs.positional('title', {
     type: 'string',
     describe: 'the pull request title',
-    default: 'Hey look it\'s a PR!'
-  })
+    default: "Hey look it's a PR!",
+  });
 };
 exports.handler = async argv => {
   const title = argv.title;
@@ -16,7 +17,14 @@ exports.handler = async argv => {
   const currentBranch = await git.getCurrentBranchName();
   // TODO: commit & push if necessary
   const repoInfo = await git.getCurrentRepoGithubInfo();
-  const repositoryId = await github.getRepositoryId({owner: repoInfo.owner, name: repoInfo.name});
-  const pullRequest = await github.createPullRequest({repositoryId, headBranch: currentBranch, title});
+  const repositoryId = await github.getRepositoryId({
+    owner: repoInfo.owner,
+    name: repoInfo.name,
+  });
+  const pullRequest = await github.createPullRequest({
+    repositoryId,
+    headBranch: currentBranch,
+    title,
+  });
   console.log(pullRequest.url);
 };

@@ -9,7 +9,7 @@ module.exports = {
   fetch: () => Git().fetch,
   getCurrentBranchName,
   getCurrentRepoGithubInfo,
-  pushCurrentBranchToOrigin
+  pushCurrentBranchToOrigin,
 };
 
 /**
@@ -20,7 +20,7 @@ module.exports = {
  */
 async function checkoutBranchFromOrigin(branchName) {
   const git = Git(); // TODO: Consolidate all this init stuff
-  let branchSummary = await git.branch({'-r': null});
+  let branchSummary = await git.branch({ '-r': null });
   const remoteBranchName = `origin/${branchName}`;
   if (branchSummary.branches[remoteBranchName]) {
     console.log(`checking out branch from ${remoteBranchName}`);
@@ -106,7 +106,7 @@ async function getCurrentRepoGithubInfo() {
   return {
     owner,
     name,
-    url
+    url,
   };
 }
 
@@ -117,5 +117,5 @@ async function getCurrentRepoGithubInfo() {
 async function pushCurrentBranchToOrigin() {
   const git = Git();
   const currentBranch = await getCurrentBranchName();
-  await git.push('origin', currentBranch, {'-u': null});
+  await git.push('origin', currentBranch, { '-u': null });
 }
