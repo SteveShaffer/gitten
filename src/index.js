@@ -1,4 +1,3 @@
-// TODO: prettier
 const yargs = require('yargs');
 
 // noinspection BadExpressionStatementJS
