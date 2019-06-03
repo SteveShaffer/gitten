@@ -1,9 +1,6 @@
 const fs = require('fs');
 const request = require('request-promise');
 
-// TODO: Make these configurable from a config file (or actually I think you can figure it out from the credentials)
-const GITHUB_USERNAME = 'steveshaffer';
-
 // TODO: Unit test these
 module.exports = {
   createPullRequest,
@@ -57,15 +54,18 @@ async function callGithubRest({ method, uri, data }) {
  */
 async function callGithubBase({ method, uri, data, bearerAuth = false }) {
   const githubAccessToken = getGitHubAccessToken();
+  let authorization = `bearer ${githubAccessToken}`;
+  if (!bearerAuth) {
+    const githubUsername = getGitHubUserName(githubAccessToken);
+    authorization = `Basic ${new Buffer(
+      `${githubUsername}:${githubAccessToken}`,
+    ).toString('base64')}`;
+  }
   let res = await request({
     uri,
     method,
     headers: {
-      Authorization: bearerAuth
-        ? `bearer ${githubAccessToken}`
-        : `Basic ${new Buffer(
-            `${GITHUB_USERNAME}:${githubAccessToken}`,
-          ).toString('base64')}`,
+      Authorization: authorization,
       'Content-Type': 'application/json',
       'User-Agent': 'gish',
     },
@@ -112,6 +112,22 @@ function getGitHubAccessToken() {
     .readFileSync('.github/credentials')
     .toString()
     .trim();
+}
+
+/**
+ * Get the username of the user who owns the given token
+ * @param accessToken {string} The access token
+ * @return {Promise<*>} The user name
+ */
+async function getGitHubUserName(accessToken) {
+  const resp = await callGithubGraphql({
+    query: `query { 
+      viewer { 
+        login
+      }
+    }`,
+  });
+  return resp.viewer.login;
 }
 
 /**

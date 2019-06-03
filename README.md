@@ -165,7 +165,6 @@ Assumes squash and merge.
 
 ## Assumptions
 
-- `steveshaffer` is the only GitHub user currently supported
 - `./.github/credentials` exists and contains a GitHub personal access token as its only non-whitespace content
 - `origin` is the only remote and represents a GitHub repo
 - `master` is the integration branch and is not intended to be committed directly to
