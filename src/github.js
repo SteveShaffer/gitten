@@ -1,5 +1,7 @@
-const fs = require('fs');
+const _ = require('lodash');
 const request = require('request-promise');
+
+const { getConfig } = require('./util');
 
 // TODO: Unit test these
 module.exports = {
@@ -104,14 +106,15 @@ async function createPullRequest({ repositoryId, headBranch, title }) {
 /**
  * Gets the user's github access token from the config file on disk
  * @return {string} The access token
+ * @todo Find a way to detect when we've hit rock bottom and remove the recursion limit
+ * @todo Probably don't actually error out
  */
 function getGitHubAccessToken() {
-  // TODO: Handle DNE
-  // TODO: Traverse the directory hierarchy looking for the first folder that contains this
-  return fs
-    .readFileSync('.github/credentials')
-    .toString()
-    .trim();
+  const accessToken = _.get(getConfig(), 'github.accessToken');
+  if (!accessToken) {
+    throw new Error('No GitHub access token found in any .gish.json files.');
+  }
+  return accessToken;
 }
 
 /**

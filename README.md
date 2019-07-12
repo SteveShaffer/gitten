@@ -77,13 +77,12 @@ The future hope is that we could also map these core commands to other more stan
 ## Setup
 
 1. Create a GitHub personal access token at https://github.com/settings/tokens/new and give it the `repo` scopes.
-1. Write the value of that token into a file called `.github/credentials` in this repo.
+1. Write `{"github": {"accessToken": "<the access token>"} }` into `~/.gish.json` (or actually any `.gish.json` file in any directory above where you're going to run the gish commands).
 1. Add the `gish` command (in this project's root) to your $PATH.
 
 > TODOs
 > 
-> - Make repo owner and name dynamic based on .github/config file
-> - Allow for .github/credentials to be defined in any parent directory of this repo
+> - Build `config` or `init` command to initialize `~/.gish.json` file
 > - Do research on if there's any standards around sharing GitHub credentials through dotfiles
 > - Provide a mechanism to interactively collect the necessary credential information and store it (i.e. by asking the user for their username and password once)
 
@@ -165,7 +164,6 @@ Assumes squash and merge.
 
 ## Assumptions
 
-- `./.github/credentials` exists and contains a GitHub personal access token as its only non-whitespace content
 - `origin` is the only remote and represents a GitHub repo
 - `master` is the integration branch and is not intended to be committed directly to
 - All commits to `master` are intended to be squashed PR merges

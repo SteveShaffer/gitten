@@ -11,9 +11,6 @@ cd temp
 git clone https://github.com/SteveShaffer/gish-test
 cd gish-test
 
-mkdir .github
-cp ../../../.github/credentials .github/credentials # TODO: Make this not necessary
-
 # Testing commit and pr
 gish switch test-commit/${RANDOM_STRING}
 date >> test.txt
