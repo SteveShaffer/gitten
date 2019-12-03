@@ -78,7 +78,7 @@ The future hope is that we could also map these core commands to other more stan
 
 1. Create a GitHub personal access token at https://github.com/settings/tokens/new and give it the `repo` scopes.
 1. Write `{"github": {"accessToken": "<the access token>"} }` into `~/.gish.json` (or actually any `.gish.json` file in any directory above where you're going to run the gish commands).
-1. Add the `gish` command (in this project's root) to your $PATH.
+1. Add the [bin](bin) directory command (in this project) to your $PATH.
 
 > TODOs
 > 

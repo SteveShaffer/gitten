@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
-RANDOM_STRING=$(date | md5 | head -c8; echo)
+# I think if one of these fails, it'll just move on to the next one,
+# so either way you should get a random string at the end of it.
+RANDOM_STRING=$(date | md5 | head -c8; echo)  # Works on OSX
+RANDOM_STRING=$(openssl rand -hex 12)  # Works on Ubuntu (not tested on OSX yet)
 
+# TODO: Switch to using an ACTUAL tmp space
 cd "$(dirname "$0")"
 rm -rf temp
 mkdir temp
