@@ -1,5 +1,4 @@
-.gish.json
-.DS_Store
+.gitten.json
 .idea
 node_modules
 test/temp
