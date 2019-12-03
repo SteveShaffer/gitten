@@ -1,0 +1,21 @@
+name: CI Pipeline
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # TODO: Add strategy for running on multiple versions of node
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup git credentials
+      run: |
+        echo "{\"github\": {\"accessToken\": \"${{ secrets.TEST_GITHUB_TOKEN }}\"} }" > .gish.json
+        echo "machine github.com" > ~/.netrc
+        echo "login steveshaffer-test" >> ~/.netrc
+        echo "password ${{ secrets.TEST_GITHUB_TOKEN }}" >> ~/.netrc
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 12
+    - run: yarn install
+      env:
+        CI: true
+    - run: yarn test

@@ -89,6 +89,7 @@ The future hope is that we could also map these core commands to other more stan
 ## Testing
 
 `yarn test` will run a happy-path script that tries out all the commands.
+It assumes you have git properly configured on the machine.
 There's no assertions or anything so it's possible for it to run without failure and still be executing incorrectly.
 Right now it's just a safety net for me as I'm hacking away.
 
