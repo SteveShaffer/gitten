@@ -14,9 +14,10 @@ rm -rf temp
 mkdir temp
 cd temp
 
-## TODO: Boil down to `gitten open gish-test`
-git clone https://github.com/SteveShaffer/gish-test
-cd gish-test
+## TODO: Boil down to `gitten open gitten-test`
+# TODO: Change to gitten-test
+git clone https://github.com/SteveShaffer/gitten-test
+cd gitten-test
 
 # Need to configure git user
 git config user.email "test@shaffer.tech"
