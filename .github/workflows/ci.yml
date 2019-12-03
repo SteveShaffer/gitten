@@ -8,7 +8,7 @@ jobs:
     - uses: actions/checkout@v1
     - name: Setup git credentials
       run: |
-        echo "{\"github\": {\"accessToken\": \"${{ secrets.TEST_GITHUB_TOKEN }}\"} }" > .gish.json
+        echo "{\"github\": {\"accessToken\": \"${{ secrets.TEST_GITHUB_TOKEN }}\"} }" > .gitten.json
         echo "machine github.com" > ~/.netrc
         echo "login steveshaffer-test" >> ~/.netrc
         echo "password ${{ secrets.TEST_GITHUB_TOKEN }}" >> ~/.netrc

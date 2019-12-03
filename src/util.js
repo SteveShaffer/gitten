@@ -7,7 +7,7 @@ module.exports = {
 };
 
 /**
- * Merges all valid .gish.json files in the file system above the current node (up to a limit) together into one master
+ * Merges all valid .gitten.json files in the file system above the current node (up to a limit) together into one master
  * config and returns it
  * @todo Cache the config in memory
  */
@@ -15,7 +15,7 @@ function getConfig() {
   const RECURSION_LIMIT = 100;
   return _.merge(
     ..._.range(RECURSION_LIMIT)
-      .map(i => `${'../'.repeat(i)}.gish.json`)
+      .map(i => `${'../'.repeat(i)}.gitten.json`)
       .reverse()
       .map(configFileToData),
   );

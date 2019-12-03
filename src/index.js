@@ -2,7 +2,7 @@ const yargs = require('yargs');
 
 // noinspection BadExpressionStatementJS
 yargs
-  .scriptName('gish') // TODO: Better name
+  .scriptName('gitten')
   .commandDir('commands')
   .demandCommand()
   .help().argv;

@@ -69,7 +69,7 @@ async function callGithubBase({ method, uri, data, bearerAuth = false }) {
     headers: {
       Authorization: authorization,
       'Content-Type': 'application/json',
-      'User-Agent': 'gish',
+      'User-Agent': 'gitten',
     },
     body: JSON.stringify(data),
   });
@@ -112,7 +112,7 @@ async function createPullRequest({ repositoryId, headBranch, title }) {
 function getGitHubAccessToken() {
   const accessToken = _.get(getConfig(), 'github.accessToken');
   if (!accessToken) {
-    throw new Error('No GitHub access token found in any .gish.json files.');
+    throw new Error('No GitHub access token found in any .gitten.json files.');
   }
   return accessToken;
 }
