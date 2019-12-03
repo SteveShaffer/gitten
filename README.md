@@ -13,39 +13,39 @@ like `open`, `switch`, `save`, `pr`, and `merge` and rely on upfront configurati
 for sensible defaults so there's very little data collection needed at command time.
 
 ```bash
-~ $ gitten open my-repo-name
-Cloned repo https://github.com/steveshaffer/my-repo-name 
+~$ gitten open my-repo-name
+> Cloned repo https://github.com/steveshaffer/my-repo-name 
 
-my-repo-name $ gitten switch 12345 # Where ABC-12345 is a ticket number
-Switched to branch feature/ABC-12345 and set ticket [ABC-12345 Users cannot login] status to "In Progress"
+my-repo-name$ gitten switch 12345 # Where ABC-12345 is a ticket number
+> Switched to branch feature/ABC-12345 and set ticket [ABC-12345 Users cannot login] status to "In Progress"
 
 # Edit files on disk...
 
-my-repo-name $ gitten save "Fix login"
-Saved all changes with label "ABC-12345 Fix login" and pushed to GitHub
+my-repo-name$ gitten save "Fix login"
+> Saved all changes with label "ABC-12345 Fix login" and pushed to GitHub
 
-my-repo-name $ gitten pr
-Created pull request https://github.com/steveshaffer/my-repo-name/pull/42
+my-repo-name$ gitten pr
+> Created pull request https://github.com/steveshaffer/my-repo-name/pull/42
 ```
 
 *Go get the PR reviewed but there were changed requested...*
 
 ```bash
-~ $ gitten open my-repo-name@12345
-Opened ~/projects/github.com/steveshaffer/my-repo-name on branch feature/ABC-12345
+~$ gitten open my-repo-name@12345
+> Opened ~/projects/github.com/steveshaffer/my-repo-name on branch feature/ABC-12345
 
-my-repo-name $ gitten save
-Saved all changes with label "ABC-12345 Fix login" and pushed to GitHub
+my-repo-name$ gitten save
+> Saved all changes with label "ABC-12345 Fix login" and pushed to GitHub
 ```
 
 *Go get the PR approved...*
 
 ```bash
-~ gitten open my-repo-name
-Opened ~/projects/github.com/steveshaffer/my-repo-name on branch master
+~$ gitten open my-repo-name
+> Opened ~/projects/github.com/steveshaffer/my-repo-name on branch master
 
-my-repo-name $ gitten merge 42
-Merged pull request https://github.com/steveshaffer/my-repo-name/pull/42
+my-repo-name$ gitten merge 42
+> Merged pull request https://github.com/steveshaffer/my-repo-name/pull/42
 ```
 
 This is possible if we know your...
@@ -173,7 +173,6 @@ Assumes squash and merge.
 
 ## Overall TODOs
 
-- Get a better name
 - Remove all debugging `console.log` statements
 - Fix how it runs as a "binary."  Should be more standard and able to run with `npx`
 - Make it into an actual binary with something like pkg.
