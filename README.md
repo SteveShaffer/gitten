@@ -1,8 +1,10 @@
 # gitten
 
+<img src="gitten.png" height="200" alt="gitten logo">
+
 git for humans
 
-**WARNING: THIS IS HEAVILY IN-DEVELOPMENT.  DO NOT USE UNLESS YOU'RE WILLING TO MESS UP YOUR REPO!**
+**⚠️ WARNING: THIS IS HEAVILY IN-DEVELOPMENT.  DO NOT USE UNLESS YOU'RE WILLING TO MESS UP YOUR REPO!**
 
 ## The Vision
 
