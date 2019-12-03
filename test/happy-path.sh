@@ -15,7 +15,6 @@ mkdir temp
 cd temp
 
 ## TODO: Boil down to `gitten open gitten-test`
-# TODO: Change to gitten-test
 git clone https://github.com/SteveShaffer/gitten-test
 cd gitten-test
 
