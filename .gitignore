@@ -1,4 +1,6 @@
 .gitten.json
 .idea
+.pnp.js
+.yarn
 node_modules
 test/temp

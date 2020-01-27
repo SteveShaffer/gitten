@@ -9,11 +9,6 @@
   "scripts": {
     "test": "./test/happy-path.sh"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "prettier --single-quote --trailing-comma all --write \"**/*.js\" && git add ."
-    }
-  },
   "dependencies": {
     "lodash": "^4.17.13",
     "request": "^2.88.0",

@@ -88,6 +88,13 @@ The future hope is that we could also map these core commands to other more stan
 > - Do research on if there's any standards around sharing GitHub credentials through dotfiles
 > - Provide a mechanism to interactively collect the necessary credential information and store it (i.e. by asking the user for their username and password once)
 
+## Local Development
+
+> TODOs
+>
+> - Document local development
+> - Add husky pre-commit hooks back in
+
 ## Testing
 
 `yarn test` will run a happy-path script that tries out all the commands.
