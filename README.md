@@ -87,6 +87,8 @@ The future hope is that we could also map these core commands to other more stan
 > - Build `config` or `init` command to initialize `~/.gitten.json` file
 > - Do research on if there's any standards around sharing GitHub credentials through dotfiles
 > - Provide a mechanism to interactively collect the necessary credential information and store it (i.e. by asking the user for their username and password once)
+> - Figure out if/how this works with 2FA
+> - Figure out what the differences/similarities are with this working via https vs. git/ssh protocols
 
 ## Testing
 
