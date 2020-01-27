@@ -94,6 +94,7 @@ The future hope is that we could also map these core commands to other more stan
 >
 > - Document local development
 > - Add husky pre-commit hooks back in
+> - Figure out how to configure husky to work with yarn 2
 
 ## Testing
 
