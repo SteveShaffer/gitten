@@ -15,7 +15,7 @@
     }
   },
   "dependencies": {
-    "lodash": "^4.17.13",
+    "lodash": "^4.17.19",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "simple-git": "^1.110.0",
