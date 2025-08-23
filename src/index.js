@@ -1,4 +1,5 @@
-const yargs = require('yargs');
+
+import yargs from 'yargs';
 
 // noinspection BadExpressionStatementJS
 yargs

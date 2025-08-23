@@ -1,15 +1,16 @@
-const git = require('../git');
 
-exports.command = 'save [message]';
-exports.desc = 'Save changes locally and to the server';
-exports.builder = yargs => {
+import * as git from '../git.js';
+
+export const command = 'save [message]';
+export const desc = 'Save changes locally and to the server';
+export const builder = yargs => {
   yargs.positional('message', {
     type: 'string',
     describe: 'the commit message',
     default: '.', // TODO: Have a better default commit message
   });
 };
-exports.handler = async argv => {
+export const handler = async argv => {
   git.fetch();
   // TODO: Make sure origin is not ahead of local.  If it is, attempt to merge.
   //  If that fails go into "oh no! looks like you and ____ edited the same stuff. Probably talk to them" mode

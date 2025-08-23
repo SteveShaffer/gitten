@@ -1,15 +1,16 @@
-const git = require('../git');
-const github = require('../github');
 
-exports.command = 'merge <number>';
-exports.desc = 'Squash and merge a GitHub pull request.';
-exports.builder = yargs => {
+import * as git from '../git.js';
+import * as github from '../github.js';
+
+export const command = 'merge <number>';
+export const desc = 'Squash and merge a GitHub pull request.';
+export const builder = yargs => {
   yargs.positional('number', {
     type: 'string',
     describe: 'the pull request number',
   });
 };
-exports.handler = async argv => {
+export const handler = async argv => {
   const pullRequestNumber = argv.number;
   console.log('merging the PR');
   const repoInfo = await git.getCurrentRepoGithubInfo();

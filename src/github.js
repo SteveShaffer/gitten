@@ -1,14 +1,10 @@
-const _ = require('lodash');
-const request = require('request-promise');
 
-const { getConfig } = require('./util');
+import _ from 'lodash';
+import request from 'request-promise';
+import { getConfig } from './util.js';
 
 // TODO: Unit test these
-module.exports = {
-  createPullRequest,
-  getRepositoryId,
-  mergePullRequest,
-};
+export { createPullRequest, getRepositoryId, mergePullRequest };
 
 /**
  * Wrapper for the GitHub GraphQL API

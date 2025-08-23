@@ -1,8 +1,9 @@
-const git = require('../git');
 
-exports.command = 'switch <branch>';
-exports.desc = 'Switch to a branch.';
-exports.builder = yargs => {
+import * as git from '../git.js';
+
+export const command = 'switch <branch>';
+export const desc = 'Switch to a branch.';
+export const builder = yargs => {
   yargs.positional('branch', {
     type: 'string',
     describe:
@@ -10,7 +11,7 @@ exports.builder = yargs => {
     // TODO: Make optional with default to master?
   });
 };
-exports.handler = async argv => {
+export const handler = async argv => {
   const branchName = argv.branch;
   // TODO: Make config for assuming things like feature/XXX-#### and just having to specify #### to get the branch going
   console.log('switching to', branchName);

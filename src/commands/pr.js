@@ -1,17 +1,18 @@
-const git = require('../git');
-const github = require('../github');
 
-exports.command = 'pr <title>';
-exports.desc =
+import * as git from '../git.js';
+import * as github from '../github.js';
+
+export const command = 'pr <title>';
+export const desc =
   'Create a GitHub pull request from the current branch to master.';
-exports.builder = yargs => {
+export const builder = yargs => {
   yargs.positional('title', {
     type: 'string',
     describe: 'the pull request title',
     default: "Hey look it's a PR!",
   });
 };
-exports.handler = async argv => {
+export const handler = async argv => {
   const title = argv.title;
   console.log('creating PR');
   const currentBranch = await git.getCurrentBranchName();

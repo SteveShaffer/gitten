@@ -1,17 +1,18 @@
-const Git = require('simple-git/promise');
+
+import Git from 'simple-git/promise';
 
 // TODO: Unit test these
-module.exports = {
+export {
   checkoutBranchFromOrigin,
   commitAllChanges,
   deleteLocalBranch,
   detachHead,
-  fetch: () => Git().fetch,
   getCurrentBranchName,
   getCurrentRepoGithubInfo,
   pushCurrentBranchToOrigin,
   squashRebaseCurrentBranchAgainstOriginMaster,
 };
+export const fetch = () => Git().fetch;
 
 /**
  * Checks out the given branch from origin
