@@ -90,17 +90,6 @@ The future hope is that we could also map these core commands to other more stan
 > - Figure out if/how this works with 2FA
 > - Figure out what the differences/similarities are with this working via https vs. git/ssh protocols
 
-## Testing
-
-`yarn test` will run a happy-path script that tries out all the commands.
-It assumes you have git properly configured on the machine.
-There's no assertions or anything so it's possible for it to run without failure and still be executing incorrectly.
-Right now it's just a safety net for me as I'm hacking away.
-
-> TODOs
->
-> - Use an actual testing framework and stuff
-
 ## Command Reference
 
 ### `gitten switch <branch-name>`
@@ -166,6 +155,12 @@ Assumes squash and merge.
 > - Be able to ID a PR by the ticket number (or title?) or URL
 > - Support other methods of merging beyond squash?
 > - Delete the branch after merge
+
+---
+
+## Contributing
+
+Contributions welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for instructions on how to get your local dev environment setup.
 
 ## Assumptions
 
